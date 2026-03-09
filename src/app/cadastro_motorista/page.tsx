@@ -47,22 +47,31 @@ export default function CadastroMotoristaPage() {
         <h2 className="page-title">CADASTRE UM NOVO MOTORISTA</h2>
         <div className="card">
           <form onSubmit={handleSubmit}>
-            <div className="field">
+
+            {/* Nome — linha inteira */}
+            <div className="field full">
               <label className="label">NOME</label>
               <input type="text" name="nome" className="input" placeholder="Ex: José Bonifácio Sombra" value={form.nome} onChange={handleChange} />
             </div>
-            <div className="field">
-              <label className="label">EMAIL</label>
-              <input type="email" name="email" className="input" placeholder="Ex: jose@gmail.com" value={form.email} onChange={handleChange} />
+
+            {/* Email e Telefone — lado a lado */}
+            <div className="row">
+              <div className="field">
+                <label className="label">EMAIL</label>
+                <input type="email" name="email" className="input" placeholder="Ex: jose@gmail.com" value={form.email} onChange={handleChange} />
+              </div>
+              <div className="field">
+                <label className="label">TELEFONE</label>
+                <input type="tel" name="telefone" className="input" placeholder="Ex: (88) 94002-8922" value={form.telefone} onChange={handleChange} />
+              </div>
             </div>
-            <div className="field">
-              <label className="label">TELEFONE</label>
-              <input type="tel" name="telefone" className="input" placeholder="Ex: (88) 94002-8922" value={form.telefone} onChange={handleChange} />
-            </div>
-            <div className="field">
+
+            {/* CNH — linha inteira */}
+            <div className="field full">
               <label className="label">NÚMERO DA CNH</label>
               <input type="text" name="numeroCnh" className="input" placeholder="Ex: 07234567889" value={form.numeroCnh} onChange={handleChange} />
             </div>
+
             <button type="submit" className="btn">CADASTRAR</button>
           </form>
         </div>
@@ -77,6 +86,8 @@ export default function CadastroMotoristaPage() {
 
         .page {
           min-height: 100vh;
+          display: flex;
+          flex-direction: column;
           background: #ffffff;
           font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -101,8 +112,8 @@ export default function CadastroMotoristaPage() {
 
         .nav-link {
           font-size: 13px;
-          font-weight: 500;
-          color: #444;
+          font-weight: 800;
+          color: #01233F;
           text-decoration: none;
           letter-spacing: 0.5px;
           text-transform: uppercase;
@@ -114,7 +125,7 @@ export default function CadastroMotoristaPage() {
         }
 
         .nav-link:hover {
-          color: #1a1a1a;
+          color: #01233F;
         }
 
         .nav-right {
@@ -165,13 +176,15 @@ export default function CadastroMotoristaPage() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 48px 20px;
+          padding: 48px 40px;
+          flex: 1;
+          justify-content: center;
         }
 
         .page-title {
           font-size: 18px;
           font-weight: 900;
-          color: #1a1a1a;
+          color: #01233F;
           letter-spacing: 1px;
           text-transform: uppercase;
           margin-bottom: 24px;
@@ -181,17 +194,35 @@ export default function CadastroMotoristaPage() {
         .card {
           background: #ffffff;
           border-radius: 5px;
-          padding: 28px 28px 24px;
+          padding: 40px 40px 36px;
           width: 100%;
-          max-width: 440px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+          max-width: 860px;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Linha com 2 colunas */
+        .row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          margin-bottom: 16px;
         }
 
         .field {
-          margin-bottom: 16px;
           display: flex;
           flex-direction: column;
-          gap: 5px;
+          gap: 6px;
+          margin-bottom: 16px;
+        }
+
+        /* Campo que ocupa linha inteira */
+        .field.full {
+          width: 100%;
+        }
+
+        /* Dentro do .row os fields não têm margin-bottom próprio */
+        .row .field {
+          margin-bottom: 0;
         }
 
         .label {
@@ -204,14 +235,15 @@ export default function CadastroMotoristaPage() {
 
         .input {
           width: 100%;
-          height: 38px;
+          height: 52px;
           border: 1.5px solid #e0e0e0;
           border-radius: 4px;
-          padding: 0 12px;
+          padding: 0 14px;
           font-size: 13px;
-          font-weight: 600;
+          font-weight: 400;
           color: #333;
           background: #F3F3F3;
+          font-size: 15px;
           outline: none;
           transition: border-color 0.2s;
         }
@@ -219,16 +251,17 @@ export default function CadastroMotoristaPage() {
         .input::placeholder {
           color: #ACACAC;
           font-size: 13px;
-          font-weight: 600;
+          font-weight: 800;
         }
 
         .input:focus {
           border-color: #f1bb13;
+          background: #fff;
         }
 
         .btn {
           width: 100%;
-          height: 44px;
+          height: 54px;
           background: #f1bb13;
           border: none;
           border-radius: 4px;
@@ -252,7 +285,8 @@ export default function CadastroMotoristaPage() {
           background: #c79800;
         }
 
-        @media (max-width: 600px) {
+        /* Tablet / Mobile */
+        @media (max-width: 768px) {
           .navbar {
             padding: 0 16px;
           }
@@ -267,6 +301,19 @@ export default function CadastroMotoristaPage() {
 
           .page-title {
             font-size: 15px;
+          }
+
+          /* Em telas pequenas, 2 colunas viram 1 */
+          .row {
+            grid-template-columns: 1fr;
+          }
+
+          .row .field {
+            margin-bottom: 16px;
+          }
+
+          .row .field:last-child {
+            margin-bottom: 0;
           }
         }
       `}</style>
