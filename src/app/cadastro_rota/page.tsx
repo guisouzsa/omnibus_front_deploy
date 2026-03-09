@@ -83,6 +83,8 @@ export default function CadastroRotaPage() {
           min-height: 100vh;
           background: #ffffff;
           font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+          display: flex;
+          flex-direction: column;
         }
 
         .navbar {
@@ -105,8 +107,8 @@ export default function CadastroRotaPage() {
 
         .nav-link {
           font-size: 13px;
-          font-weight: 500;
-          color: #444;
+          font-weight: 800;
+          color: #01233F;
           letter-spacing: 0.5px;
           text-transform: uppercase;
           background: none;
@@ -117,7 +119,7 @@ export default function CadastroRotaPage() {
         }
 
         .nav-link:hover {
-          color: #1a1a1a;
+          color: #01233F;
         }
 
         .nav-right {
@@ -165,16 +167,18 @@ export default function CadastroRotaPage() {
         }
 
         .main {
+          flex: 1;
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 48px 20px;
+          justify-content: center;
+          padding: 48px 40px;
         }
 
         .page-title {
           font-size: 18px;
           font-weight: 900;
-          color: #1a1a1a;
+          color: #01233F;
           letter-spacing: 1px;
           text-transform: uppercase;
           margin-bottom: 24px;
@@ -184,27 +188,28 @@ export default function CadastroRotaPage() {
         .card {
           background: #ffffff;
           border-radius: 5px;
-          padding: 28px 28px 24px;
+          padding: 40px 40px 36px;
           width: 100%;
-          max-width: 480px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+          max-width: 860px;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.06);
         }
 
         .row {
-          display: flex;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
           gap: 16px;
           margin-bottom: 0;
         }
 
         .row .field {
-          flex: 1;
+          margin-bottom: 16px;
         }
 
         .field {
           margin-bottom: 16px;
           display: flex;
           flex-direction: column;
-          gap: 5px;
+          gap: 6px;
         }
 
         .label {
@@ -217,31 +222,32 @@ export default function CadastroRotaPage() {
 
         .input {
           width: 100%;
-          height: 38px;
+          height: 52px;
           border: 1.5px solid #e0e0e0;
           border-radius: 4px;
-          padding: 0 12px;
-          font-size: 13px;
-          font-weight: 600;
+          padding: 0 14px;
+          font-size: 15px;
+          font-weight: 400;
           color: #333;
           background: #F3F3F3;
           outline: none;
-          transition: border-color 0.2s;
+          transition: border-color 0.2s, background 0.2s;
         }
 
         .input::placeholder {
           color: #ACACAC;
-          font-size: 13px;
-          font-weight: 600;
+          font-size: 14px;
+          font-weight: 800;
         }
 
         .input:focus {
           border-color: #f1bb13;
+          background: #fff;
         }
 
         .btn {
           width: 100%;
-          height: 44px;
+          height: 54px;
           background: #f1bb13;
           border: none;
           border-radius: 4px;
@@ -265,7 +271,7 @@ export default function CadastroRotaPage() {
           background: #c79800;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
           .navbar {
             padding: 0 16px;
           }
@@ -274,8 +280,12 @@ export default function CadastroRotaPage() {
             gap: 16px;
           }
 
+          .main {
+            padding: 32px 16px;
+          }
+
           .card {
-            padding: 20px 16px;
+            padding: 24px 20px;
           }
 
           .page-title {
@@ -283,8 +293,11 @@ export default function CadastroRotaPage() {
           }
 
           .row {
-            flex-direction: column;
-            gap: 0;
+            grid-template-columns: 1fr;
+          }
+
+          .row .field {
+            margin-bottom: 16px;
           }
         }
       `}</style>
