@@ -4,6 +4,39 @@ import { useState, useEffect } from 'react';
 import { expensesService } from '@/services';
 import { Expense, CreateExpenseRequest, UpdateExpenseRequest, QueryParams } from '@/types/api';
 
+function normalizeExpensesResponse(response: any): {
+  items: Expense[];
+  pagination: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
+} {
+  if (Array.isArray(response)) {
+    return {
+      items: response,
+      pagination: {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: response.length,
+        total: response.length,
+      },
+    };
+  }
+
+  const items = Array.isArray(response?.data) ? response.data : [];
+  return {
+    items,
+    pagination: {
+      currentPage: response?.current_page ?? 1,
+      lastPage: response?.last_page ?? 1,
+      perPage: response?.per_page ?? items.length,
+      total: response?.total ?? items.length,
+    },
+  };
+}
+
 export function useExpenses(autoFetch = true) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(false);
@@ -26,15 +59,12 @@ export function useExpenses(autoFetch = true) {
     setError(null);
     try {
       const response = await expensesService.getAll(params);
-      setExpenses(response.data);
-      setPagination({
-        currentPage: response.current_page,
-        lastPage: response.last_page,
-        perPage: response.per_page,
-        total: response.total,
-      });
+      const normalized = normalizeExpensesResponse(response);
+      setExpenses(normalized.items);
+      setPagination(normalized.pagination);
     } catch (err: any) {
       setError(err.message || 'Erro ao carregar despesas');
+      setExpenses([]);
     } finally {
       setLoading(false);
     }
@@ -44,10 +74,13 @@ export function useExpenses(autoFetch = true) {
     setLoading(true);
     setError(null);
     try {
-      const data = await expensesService.getMyExpenses();
-      setExpenses(data);
+      const response = await expensesService.getMyExpenses();
+      const normalized = normalizeExpensesResponse(response);
+      setExpenses(normalized.items);
+      setPagination(normalized.pagination);
     } catch (err: any) {
       setError(err.message || 'Erro ao carregar despesas');
+      setExpenses([]);
     } finally {
       setLoading(false);
     }

@@ -47,8 +47,9 @@ export interface SpendingLimit {
   user_id: number;
   month: string;
   year: string;
-  limit_value: number;
-  current_spent: number;
+  limit_amount: number;
+  limit_value?: number;
+  current_spent?: number;
   created_at: string;
   updated_at: string;
   user?: User;
@@ -107,14 +108,16 @@ export interface UpdateExpenseRequest {
 
 export interface CreateSpendingLimitRequest {
   user_id: number;
-  month: string;
-  year: string;
-  limit_value: number;
+  limit_amount?: number;
+  limit_value?: number;
+  month?: string;
+  year?: string;
 }
 
 export interface UpdateSpendingLimitRequest {
   month?: string;
   year?: string;
+  limit_amount?: number;
   limit_value?: number;
 }
 

@@ -8,11 +8,39 @@ import {
   ApiResponse,
 } from '@/types/api';
 
+function getLimitAmount(limit: Partial<SpendingLimit>): number {
+  if (typeof limit.limit_amount === 'number') return limit.limit_amount;
+  if (typeof limit.limit_value === 'number') return limit.limit_value;
+  return 0;
+}
+
+function normalizeLimit(limit: any): SpendingLimit {
+  return {
+    ...limit,
+    limit_amount: getLimitAmount(limit),
+    limit_value: getLimitAmount(limit),
+    month: limit?.month ?? (limit?.created_at ? new Date(limit.created_at).toISOString().slice(5, 7) : ''),
+    year: limit?.year ?? (limit?.created_at ? new Date(limit.created_at).toISOString().slice(0, 4) : ''),
+  } as SpendingLimit;
+}
+
+function normalizeLimitsList(response: any): SpendingLimit[] {
+  if (Array.isArray(response)) {
+    return response.map(normalizeLimit);
+  }
+
+  if (Array.isArray(response?.data)) {
+    return response.data.map(normalizeLimit);
+  }
+
+  return [];
+}
+
 class SpendingLimitsService {
   // Listar todos os limites
   async getAll(
     params?: QueryParams
-  ): Promise<PaginatedResponse<SpendingLimit>> {
+  ): Promise<PaginatedResponse<SpendingLimit> | SpendingLimit[]> {
     return apiClient.get('/api/spending-limits', params);
   }
 
@@ -25,7 +53,21 @@ class SpendingLimitsService {
   async create(
     data: CreateSpendingLimitRequest
   ): Promise<ApiResponse<SpendingLimit>> {
-    return apiClient.post('/api/spending-limits', data);
+    const payload = {
+      user_id: data.user_id,
+      limit_amount: data.limit_amount ?? data.limit_value,
+    };
+
+    const response = await apiClient.post<ApiResponse<SpendingLimit>>(
+      '/api/spending-limits',
+      payload
+    );
+
+    if (response?.data) {
+      response.data = normalizeLimit(response.data);
+    }
+
+    return response;
   }
 
   // Atualizar limite
@@ -33,7 +75,20 @@ class SpendingLimitsService {
     id: number,
     data: UpdateSpendingLimitRequest
   ): Promise<ApiResponse<SpendingLimit>> {
-    return apiClient.put(`/api/spending-limits/${id}`, data);
+    const payload = {
+      limit_amount: data.limit_amount ?? data.limit_value,
+    };
+
+    const response = await apiClient.put<ApiResponse<SpendingLimit>>(
+      `/api/spending-limits/${id}`,
+      payload
+    );
+
+    if (response?.data) {
+      response.data = normalizeLimit(response.data);
+    }
+
+    return response;
   }
 
   // Deletar limite
@@ -43,7 +98,8 @@ class SpendingLimitsService {
 
   // Obter limites por usuário
   async getByUser(userId: number): Promise<SpendingLimit[]> {
-    return apiClient.get(`/api/spending-limits/user/${userId}`);
+    const response = await apiClient.get(`/api/spending-limits/user/${userId}`);
+    return normalizeLimitsList(response);
   }
 
   // Obter limite por período
@@ -53,14 +109,33 @@ class SpendingLimitsService {
     month: string
   ): Promise<SpendingLimit | null> {
     try {
-      return await apiClient.get(
+      const response = await apiClient.get(
         `/api/spending-limits/user/${userId}/period/${year}/${month}`
       );
-    } catch (error: any) {
-      if (error.status === 404) {
+
+      if (!response) {
         return null;
       }
-      throw error;
+
+      return normalizeLimit(response);
+    } catch (error: any) {
+      if (error.status !== 404) {
+        throw error;
+      }
+
+      const allLimitsResponse = await this.getAll();
+      const allLimits = normalizeLimitsList(allLimitsResponse);
+
+      return (
+        allLimits.find((limit) => {
+          const normalizedMonth = String(limit.month).padStart(2, '0');
+          return (
+            limit.user_id === userId &&
+            String(limit.year) === String(year) &&
+            normalizedMonth === String(month).padStart(2, '0')
+          );
+        }) ?? null
+      );
     }
   }
 
