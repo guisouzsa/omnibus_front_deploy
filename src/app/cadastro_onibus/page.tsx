@@ -395,10 +395,6 @@ export default function CadastroOnibusPage() {
           background: #c79800;
         }
 
-<<<<<<< HEAD
-        /* ── RESPONSIVO ── */
-        @media (max-width: 768px) {
-=======
         .btn:disabled {
           background: #ccc;
           cursor: not-allowed;
@@ -441,7 +437,6 @@ export default function CadastroOnibusPage() {
 
         /* ── RESPONSIVO ──────────────────────────── */
         @media (max-width: 600px) {
->>>>>>> 1605d03 (feat(api_calls): ligação com apis laravel(onibus,motoristas e financeiro).)
           .navbar {
             padding: 0 16px;
           }
