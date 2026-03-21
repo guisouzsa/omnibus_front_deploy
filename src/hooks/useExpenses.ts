@@ -70,11 +70,11 @@ export function useExpenses(autoFetch = true) {
     }
   };
 
-  const fetchMyExpenses = async () => {
+  const fetchMyExpenses = async (params?: QueryParams) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await expensesService.getMyExpenses();
+      const response = await expensesService.getMyExpenses(params);
       const normalized = normalizeExpensesResponse(response);
       setExpenses(normalized.items);
       setPagination(normalized.pagination);

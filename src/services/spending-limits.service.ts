@@ -48,7 +48,7 @@ class SpendingLimitsService {
   // Listar todos os limites
   async getAll(
     params?: QueryParams
-  ): Promise<PaginatedResponse<SpendingLimit> | SpendingLimit[]> {
+  ): Promise<PaginatedResponse<SpendingLimit>> {
     return apiClient.get('/api/spending-limits', params);
   }
 

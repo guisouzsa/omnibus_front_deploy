@@ -68,14 +68,51 @@ class ApiClient {
     return queryString ? `?${queryString}` : '';
   }
 
+  private buildURL(endpoint: string, queryString = ''): string {
+    const normalizedBase = this.baseURL.replace(/\/$/, '');
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${normalizedBase}${normalizedEndpoint}${queryString}`;
+  }
+
+  private async executeFetch(url: string, init: RequestInit): Promise<Response> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    try {
+      return await fetch(url, {
+        ...init,
+        signal: controller.signal,
+      });
+    } catch (error: any) {
+      const isTimeout = error?.name === 'AbortError';
+      const networkError: any = new Error(
+        isTimeout
+          ? 'Não foi possível conectar à API (tempo limite excedido). Verifique se o backend está rodando em http://localhost:8000.'
+          : 'Não foi possível conectar à API. Verifique se o backend está rodando e se a URL está correta.'
+      );
+
+      networkError.status = 0;
+      networkError.response = {
+        message: networkError.message,
+        url,
+      };
+      networkError.cause = error;
+
+      throw networkError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
   public async get<T = any>(
     endpoint: string,
     params?: QueryParams
   ): Promise<T> {
     const token = this.getToken();
     const queryString = this.buildQueryString(params);
+    const url = this.buildURL(endpoint, queryString);
 
-    const response = await fetch(`${this.baseURL}${endpoint}${queryString}`, {
+    const response = await this.executeFetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -105,7 +142,9 @@ class ApiClient {
       headers['Content-Type'] = 'application/json';
     }
 
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+    const url = this.buildURL(endpoint);
+
+    const response = await this.executeFetch(url, {
       method: 'POST',
       headers,
       body: isFormData ? body : JSON.stringify(body),
@@ -120,8 +159,9 @@ class ApiClient {
     body?: any
   ): Promise<T> {
     const token = this.getToken();
+    const url = this.buildURL(endpoint);
 
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+    const response = await this.executeFetch(url, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -140,8 +180,9 @@ class ApiClient {
     body?: any
   ): Promise<T> {
     const token = this.getToken();
+    const url = this.buildURL(endpoint);
 
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+    const response = await this.executeFetch(url, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -157,8 +198,9 @@ class ApiClient {
 
   public async delete<T = any>(endpoint: string): Promise<T> {
     const token = this.getToken();
+    const url = this.buildURL(endpoint);
 
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+    const response = await this.executeFetch(url, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

@@ -21,13 +21,60 @@ export interface Driver {
 
 export interface Vehicle {
   id: number;
-  driver_id: number;
+  driver_id: number | null;
   plate: string;
   capacity: number;
   mainRoute: string;
   created_at: string;
   updated_at: string;
   driver?: Driver;
+}
+
+export interface School {
+  id: number;
+  user_id: number;
+  name: string;
+  cep: string;
+  address: string;
+  reference_point?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Route {
+  id: number;
+  user_id: number;
+  school_id?: number | null;
+  name: string;
+  start_point: string;
+  start_point_cep?: string | null;
+  start_point_reference?: string | null;
+  start_point_lat?: number | null;
+  start_point_lng?: number | null;
+  end_point: string;
+  end_point_lat?: number | null;
+  end_point_lng?: number | null;
+  departure_time: string;
+  created_at: string;
+  updated_at: string;
+  school?: School;
+}
+
+export interface GeocodeAddressOption {
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+export interface RouteDetailsResponse {
+  data: Route;
+  suggested_duration_minutes: number | null;
+  map_points: {
+    start: { lat: number | null; lng: number | null; label: string };
+    end: { lat: number | null; lng: number | null; label: string };
+  };
 }
 
 export interface Expense {
@@ -135,6 +182,52 @@ export interface UpdateVehicleRequest {
   mainRoute?: string;
 }
 
+export interface CreateSchoolRequest {
+  name: string;
+  cep: string;
+  address: string;
+  reference_point?: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface UpdateSchoolRequest {
+  name?: string;
+  cep?: string;
+  address?: string;
+  reference_point?: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface CreateRouteRequest {
+  name: string;
+  school_id?: number;
+  start_point: string;
+  start_point_cep?: string;
+  start_point_reference?: string;
+  start_point_lat?: number;
+  start_point_lng?: number;
+  end_point: string;
+  end_point_lat?: number;
+  end_point_lng?: number;
+  departure_time: string;
+}
+
+export interface UpdateRouteRequest {
+  name?: string;
+  school_id?: number | null;
+  start_point?: string;
+  start_point_cep?: string;
+  start_point_reference?: string;
+  start_point_lat?: number;
+  start_point_lng?: number;
+  end_point?: string;
+  end_point_lat?: number;
+  end_point_lng?: number;
+  departure_time?: string;
+}
+
 // Tipos de respostas paginadas
 export interface PaginatedResponse<T> {
   data: T[];
@@ -172,4 +265,10 @@ export interface MonthlyTotal {
   month: string;
   year: string;
   total: number;
+}
+
+export interface ExpensesDashboardSummary {
+  current_month_expenses: number;
+  min_month_expenses: number;
+  current_month_limit: number;
 }

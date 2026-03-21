@@ -7,14 +7,17 @@ import {
   PaginatedResponse,
   ApiResponse,
   MonthlyTotal,
+  ExpensesDashboardSummary,
 } from '@/types/api';
 
 class ExpensesService {
   // ===== Rotas do Motorista =====
 
   // Listar despesas do motorista autenticado
-  async getMyExpenses(): Promise<Expense[]> {
-    return apiClient.get('/api/drivers/expenses');
+  async getMyExpenses(
+    params?: QueryParams
+  ): Promise<PaginatedResponse<Expense>> {
+    return apiClient.get('/api/drivers/expenses', params);
   }
 
   // Criar nova despesa (motorista)
@@ -45,6 +48,11 @@ class ExpensesService {
   // Ver total mensal do motorista
   async getMyMonthlyTotal(): Promise<MonthlyTotal> {
     return apiClient.get('/api/drivers/expenses-monthly-total');
+  }
+
+  // Resumo de gastos para dashboard da secretaria
+  async getDashboardSummary(): Promise<ExpensesDashboardSummary> {
+    return apiClient.get('/api/expenses/summary');
   }
 
   // ===== Rotas da Secretaria =====

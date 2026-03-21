@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, useExpenses, useSpendingLimits } from "@/hooks";
+import { useAuth } from "@/hooks";
+import { expensesService } from "@/services/expenses.service";
 import {
   AreaChart,
   Area,
@@ -177,13 +178,9 @@ function getCurrentPeriod() {
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { expenses, fetchExpenses } = useExpenses(false);
-  const { getLimitByPeriod } = useSpendingLimits(false);
   const [currentMonthLimit, setCurrentMonthLimit] = useState(0);
-
-  useEffect(() => {
-    fetchExpenses({ per_page: 1000 });
-  }, []);
+  const [currentMonthExpenses, setCurrentMonthExpenses] = useState(0);
+  const [minMonthExpenses, setMinMonthExpenses] = useState(0);
 
   useEffect(() => {
     if (!user?.id) {
@@ -191,43 +188,19 @@ export default function DashboardPage() {
       return;
     }
 
-    const { month, year } = getCurrentPeriod();
-    getLimitByPeriod(user.id, year, month)
-      .then((limit) => {
-        if (!limit) {
-          setCurrentMonthLimit(0);
-          return;
-        }
-
-        setCurrentMonthLimit(parseNumber((limit as any).limit_amount ?? (limit as any).limit_value));
+    expensesService
+      .getDashboardSummary()
+      .then((summary) => {
+        setCurrentMonthExpenses(parseNumber(summary?.current_month_expenses));
+        setMinMonthExpenses(parseNumber(summary?.min_month_expenses));
+        setCurrentMonthLimit(parseNumber(summary?.current_month_limit));
       })
-      .catch(() => setCurrentMonthLimit(0));
+      .catch(() => {
+        setCurrentMonthExpenses(0);
+        setMinMonthExpenses(0);
+        setCurrentMonthLimit(0);
+      });
   }, [user?.id]);
-
-  const { currentMonthExpenses, minMonthExpenses } = useMemo(() => {
-    const { month, year } = getCurrentPeriod();
-    const monthlyTotals = new Map<string, number>();
-
-    for (const expense of expenses ?? []) {
-      const expenseDate = expense?.created_at ? new Date(expense.created_at) : null;
-      if (!expenseDate || Number.isNaN(expenseDate.getTime())) continue;
-
-      const expenseMonth = String(expenseDate.getMonth() + 1).padStart(2, "0");
-      const expenseYear = String(expenseDate.getFullYear());
-      const key = `${expenseYear}-${expenseMonth}`;
-
-      monthlyTotals.set(key, (monthlyTotals.get(key) ?? 0) + parseNumber((expense as any).value));
-    }
-
-    const currentKey = `${year}-${month}`;
-    const currentMonthTotal = monthlyTotals.get(currentKey) ?? 0;
-    const totals = Array.from(monthlyTotals.values());
-
-    return {
-      currentMonthExpenses: currentMonthTotal,
-      minMonthExpenses: totals.length > 0 ? Math.min(...totals) : 0,
-    };
-  }, [expenses]);
 
   const financialMetrics = [
     { label: "META DE GASTOS", value: formatMetricValue(currentMonthLimit), sub: "POR MÊS" },

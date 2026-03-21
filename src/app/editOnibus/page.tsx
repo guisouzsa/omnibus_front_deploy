@@ -38,7 +38,7 @@ export default function EditarOnibus() {
           plate: vehicle.plate,
           capacity: vehicle.capacity.toString(),
           mainRoute: vehicle.mainRoute,
-          driver_id: vehicle.driver_id.toString(),
+          driver_id: vehicle.driver_id ? vehicle.driver_id.toString() : "",
         });
       } else {
         setSubmitError('Veículo não encontrado');
@@ -62,12 +62,22 @@ export default function EditarOnibus() {
 
     if (!vehicleId) return;
 
-    const success = await updateVehicle(parseInt(vehicleId), {
+    const payload: {
+      plate: string;
+      capacity: number;
+      mainRoute: string;
+      driver_id?: number;
+    } = {
       plate: form.plate.toUpperCase(),
       capacity: parseInt(form.capacity),
       mainRoute: form.mainRoute,
-      driver_id: parseInt(form.driver_id),
-    });
+    };
+
+    if (form.driver_id) {
+      payload.driver_id = parseInt(form.driver_id);
+    }
+
+    const success = await updateVehicle(parseInt(vehicleId), payload);
 
     if (success) {
       setSubmitSuccess(true);

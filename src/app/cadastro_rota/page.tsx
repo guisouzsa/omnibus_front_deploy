@@ -1,23 +1,84 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useRoutes } from "@/hooks/useRoutes";
+import { useSchools } from "@/hooks/useSchools";
 
 export default function CadastroRotaPage() {
   const router = useRouter();
+  const { createRoute, getAddressesByCep, loading } = useRoutes(false);
+  const { schools, fetchSchools } = useSchools(false);
   const [form, setForm] = useState({
-    nomeRota: "",
-    pontoPartida: "",
-    horarioSaida: "",
-    ultimaParada: "",
+    name: "",
+    start_point_cep: "",
+    start_point: "",
+    start_point_reference: "",
+    departure_time: "",
+    school_id: "",
   });
+  const [startOptions, setStartOptions] = useState<Array<{ address: string; lat: number; lng: number }>>([]);
+  const [selectedStartIndex, setSelectedStartIndex] = useState<string>("");
+  const [searchingCep, setSearchingCep] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    fetchSchools({ per_page: 100 });
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSearchCep = async () => {
+    setError(null);
+    setSearchingCep(true);
+    try {
+      const options = await getAddressesByCep(form.start_point_cep);
+      setStartOptions(options);
+      setSelectedStartIndex("");
+      if (!options.length) {
+        setError('Nao encontramos enderecos para esse CEP.');
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Erro ao buscar enderecos por CEP');
+      setStartOptions([]);
+    } finally {
+      setSearchingCep(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    try {
+      const selectedStart = selectedStartIndex !== "" ? startOptions[Number(selectedStartIndex)] : null;
+      const selectedSchool = schools.find((school) => school.id === Number(form.school_id));
+
+      if (!selectedSchool) {
+        setError("Selecione a escola de parada final.");
+        return;
+      }
+
+      await createRoute({
+        name: form.name,
+        school_id: selectedSchool.id,
+        start_point_cep: form.start_point_cep,
+        start_point: selectedStart?.address || form.start_point,
+        start_point_reference: form.start_point_reference,
+        start_point_lat: selectedStart?.lat,
+        start_point_lng: selectedStart?.lng,
+        end_point: selectedSchool.address,
+        end_point_lat: selectedSchool.lat || undefined,
+        end_point_lng: selectedSchool.lng || undefined,
+        departure_time: form.departure_time,
+      });
+
+      router.push('/lista_rotas');
+    } catch (err: any) {
+      setError(err?.message || 'Erro ao cadastrar rota');
+    }
   };
 
   return (
@@ -47,27 +108,68 @@ export default function CadastroRotaPage() {
         <h2 className="page-title">CADASTRE UMA NOVA ROTA</h2>
         <div className="card">
           <form onSubmit={handleSubmit}>
+            {error && <div className="error-box">{error}</div>}
             <div className="row">
               <div className="field">
                 <label className="label">NOME DA ROTA</label>
-                <input type="text" name="nomeRota" className="input" placeholder="Ex: Ingá" value={form.nomeRota} onChange={handleChange} />
+                <input type="text" name="name" className="input" placeholder="Ex: Ingá" value={form.name} onChange={handleChange} required />
               </div>
               <div className="field">
-                <label className="label">PONTO DE PARTIDA</label>
-                <input type="text" name="pontoPartida" className="input" placeholder="Ex: Centro" value={form.pontoPartida} onChange={handleChange} />
+                <label className="label">CEP DA REGIAO DE SAIDA</label>
+                <div className="cep-row">
+                  <input type="text" name="start_point_cep" className="input" placeholder="Ex: 58000000" value={form.start_point_cep} onChange={handleChange} required />
+                  <button type="button" className="btn-cep" onClick={handleSearchCep} disabled={searchingCep || !form.start_point_cep}>
+                    {searchingCep ? 'BUSCANDO...' : 'BUSCAR'}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="row">
+              <div className="field">
+                <label className="label">ENDERECO DE SAIDA (LISTA POR CEP)</label>
+                <select
+                  className="input"
+                  value={selectedStartIndex}
+                  onChange={(e) => {
+                    const idx = e.target.value;
+                    setSelectedStartIndex(idx);
+                    if (idx !== "") {
+                      setForm((prev) => ({ ...prev, start_point: startOptions[Number(idx)].address }));
+                    }
+                  }}
+                  required
+                >
+                  <option value="">Selecione um endereco</option>
+                  {startOptions.map((option, index) => (
+                    <option key={`${option.address}-${index}`} value={index}>
+                      {option.address}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label className="label">PONTO DE REFERENCIA (SAIDA)</label>
+                <input type="text" name="start_point_reference" className="input" placeholder="Ex: Proximo ao mercado X" value={form.start_point_reference} onChange={handleChange} />
               </div>
             </div>
             <div className="row">
               <div className="field">
                 <label className="label">HORÁRIO DE SAÍDA</label>
-                <input type="text" name="horarioSaida" className="input" placeholder="Ex: 07:00" value={form.horarioSaida} onChange={handleChange} />
+                <input type="time" name="departure_time" className="input" value={form.departure_time} onChange={handleChange} required />
               </div>
               <div className="field">
-                <label className="label">ÚLTIMA PARADA</label>
-                <input type="text" name="ultimaParada" className="input" placeholder="Ex: SEEP SEDVA" value={form.ultimaParada} onChange={handleChange} />
+                <label className="label">PARADA FINAL (ESCOLA)</label>
+                <select className="input" name="school_id" value={form.school_id} onChange={handleChange} required>
+                  <option value="">Selecione uma escola</option>
+                  {schools.map((school) => (
+                    <option key={school.id} value={school.id}>
+                      {school.name} - {school.address}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-            <button type="submit" className="btn">CADASTRAR</button>
+            <button type="submit" className="btn" disabled={loading}>{loading ? 'CADASTRANDO...' : 'CADASTRAR'}</button>
           </form>
         </div>
       </main>
@@ -269,6 +371,45 @@ export default function CadastroRotaPage() {
         .btn:active {
           transform: translateY(0);
           background: #c79800;
+        }
+
+        .btn:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .error-box {
+          margin-bottom: 12px;
+          padding: 10px 12px;
+          border-radius: 4px;
+          background: #f8d7da;
+          border: 1px solid #f5c6cb;
+          color: #721c24;
+          font-size: 13px;
+          font-weight: 600;
+        }
+
+        .cep-row {
+          display: grid;
+          grid-template-columns: 1fr 140px;
+          gap: 10px;
+        }
+
+        .btn-cep {
+          height: 52px;
+          border: none;
+          border-radius: 4px;
+          background: #01233F;
+          color: #fff;
+          font-weight: 800;
+          letter-spacing: 0.6px;
+          cursor: pointer;
+        }
+
+        .btn-cep:disabled {
+          background: #8fa1b2;
+          cursor: not-allowed;
         }
 
         @media (max-width: 768px) {

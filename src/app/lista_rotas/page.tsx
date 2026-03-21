@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useRoutes } from "@/hooks/useRoutes";
 
 // ─── Entidade routes conforme banco de dados ───────────────────────────────────
 type Route = {
@@ -11,20 +12,6 @@ type Route = {
   end_point: string;
   departure_time: string;
 };
-// ──────────────────────────────────────────────────────────────────────────────
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
-
-async function fetchRoutes(): Promise<Route[]> {
-  const res = await fetch(`${API_BASE_URL}/routes`);
-  if (!res.ok) throw new Error("Erro ao buscar rotas");
-  return res.json();
-}
-
-async function deleteRoute(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/routes/${id}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Erro ao excluir rota");
-}
 
 const css = `
   .rc-page { min-height: 100vh; background: #fff; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
@@ -81,18 +68,8 @@ const css = `
 
 export default function RotasCadastradasPage() {
   const router = useRouter();
-  const [routes, setRoutes] = useState<Route[]>([]);
+  const { routes, loading, error, deleteRoute } = useRoutes();
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setLoading(true);
-    fetchRoutes()
-      .then((data) => setRoutes(data))
-      .catch(() => setError("Não foi possível carregar as rotas."))
-      .finally(() => setLoading(false));
-  }, []);
 
   const filtered = routes.filter(
     (r) =>
@@ -104,14 +81,17 @@ export default function RotasCadastradasPage() {
   const handleDelete = async (id: number) => {
     try {
       await deleteRoute(id);
-      setRoutes((prev) => prev.filter((r) => r.id !== id));
     } catch {
       alert("Erro ao excluir rota. Tente novamente.");
     }
   };
 
   const handleEdit = (id: number) => {
-    router.push(`/rotas/editar/${id}`);
+    router.push(`/editRota?id=${id}`);
+  };
+
+  const handleViewMap = (id: number) => {
+    router.push(`/visualizar_rota?id=${id}`);
   };
 
   return (
@@ -159,8 +139,12 @@ export default function RotasCadastradasPage() {
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
-              <button className="rc-btn-cadastrar" onClick={() => router.push("/rotas/cadastrar")}>
+              <button className="rc-btn-cadastrar" onClick={() => router.push("/cadastro_rota")}>
                 CADASTRAR ROTAS
+              </button>
+              <button className="rc-btn-cadastrar" onClick={() => router.push("/lista_escolas")}
+              >
+                GERENCIAR ESCOLAS
               </button>
             </div>
 
@@ -191,6 +175,7 @@ export default function RotasCadastradasPage() {
                         <td className="rc-td-bold">{r.end_point}</td>
                         <td className="rc-td-time">{r.departure_time}</td>
                         <td className="rc-td-ops">
+                          <button className="rc-btn-editar" onClick={() => handleViewMap(r.id)}>MAPA</button>
                           <button className="rc-btn-excluir" onClick={() => handleDelete(r.id)}>EXCLUIR</button>
                           <button className="rc-btn-editar" onClick={() => handleEdit(r.id)}>EDITAR</button>
                         </td>
