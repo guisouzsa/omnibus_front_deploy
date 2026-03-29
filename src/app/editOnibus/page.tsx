@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useDrivers } from "@/hooks/useDrivers";
+import { useMask } from "@/hooks/useMask";
+import { MASKS } from "@/utils/masks";
 
 function BusIcon({ size = 22, color = "currentColor" }: { size?: number; color?: string }) {
   return (
@@ -144,43 +146,62 @@ const css = `
 `;
 
 export default function EditarOnibus() {
-  const router = useRouter();
+  const router       = useRouter();
   const searchParams = useSearchParams();
-  const vehicleId = searchParams.get('id');
+  const vehicleId    = searchParams.get('id');
 
   const { getVehicle, updateVehicle, loading: vehicleLoading, error: vehicleError } = useVehicles();
   const { drivers, loading: driversLoading } = useDrivers();
 
   const [form, setForm] = useState({ plate: "", capacity: "", mainRoute: "", driver_id: "" });
-  const [loadingData, setLoadingData] = useState(true);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [loadingData,   setLoadingData]   = useState(true);
+  const [submitError,   setSubmitError]   = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | { target: { name: string; value: string } }) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setSubmitError(null); setSubmitSuccess(false);
+  };
+
+  // ── Máscaras ──────────────────────────────────────────────────────────────
+  const { ref: placaRef, syncValue: syncPlaca } = useMask(MASKS.placa, handleChange);
+  // ─────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (!vehicleId) { router.push('/lista_onibus'); return; }
+
     const loadVehicle = async () => {
       const vehicle = await getVehicle(parseInt(vehicleId));
       if (vehicle) {
-        setForm({ plate: vehicle.plate, capacity: vehicle.capacity.toString(), mainRoute: vehicle.mainRoute, driver_id: vehicle.driver_id.toString() });
+        setForm({
+          plate:     vehicle.plate,
+          capacity:  vehicle.capacity.toString(),
+          mainRoute: vehicle.mainRoute,
+          driver_id: vehicle.driver_id.toString(),
+        });
+
+        // Preenche a placa no campo com máscara após carregar da API
+        setTimeout(() => {
+          syncPlaca(vehicle.plate);
+        }, 0);
       } else {
         setSubmitError('Veículo não encontrado');
       }
       setLoadingData(false);
     };
-    loadVehicle();
-  }, [vehicleId, getVehicle, router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setSubmitError(null); setSubmitSuccess(false);
-  };
+    loadVehicle();
+  }, [vehicleId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null); setSubmitSuccess(false);
     if (!vehicleId) return;
     const success = await updateVehicle(parseInt(vehicleId), {
-      plate: form.plate.toUpperCase(), capacity: parseInt(form.capacity), mainRoute: form.mainRoute, driver_id: parseInt(form.driver_id),
+      plate:     form.plate.toUpperCase(),
+      capacity:  parseInt(form.capacity),
+      mainRoute: form.mainRoute,
+      driver_id: parseInt(form.driver_id),
     });
     if (success) {
       setSubmitSuccess(true);
@@ -191,7 +212,11 @@ export default function EditarOnibus() {
   };
 
   if (loadingData) {
-    return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>Carregando dados do veículo...</div>;
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>
+        Carregando dados do veículo...
+      </div>
+    );
   }
 
   return (
@@ -243,17 +268,41 @@ export default function EditarOnibus() {
                 <div className="row">
                   <div className="field">
                     <label className="label">Placa do Veículo</label>
-                    <input type="text" name="plate" className="input" value={form.plate} onChange={handleChange} maxLength={7} required />
+                    {/* máscara de placa — syncPlaca preenche ao carregar da API */}
+                    <input
+                      ref={placaRef}
+                      type="text"
+                      name="plate"
+                      className="input"
+                      placeholder="Ex: ABC1D23"
+                      maxLength={7}
+                      required
+                    />
                   </div>
                   <div className="field">
                     <label className="label">Capacidade</label>
-                    <input type="number" name="capacity" className="input" value={form.capacity} onChange={handleChange} min="1" required />
+                    <input
+                      type="number"
+                      name="capacity"
+                      className="input"
+                      value={form.capacity}
+                      onChange={handleChange}
+                      min="1"
+                      required
+                    />
                   </div>
                 </div>
 
                 <div className="field">
                   <label className="label">Rota Principal</label>
-                  <input type="text" name="mainRoute" className="input" value={form.mainRoute} onChange={handleChange} required />
+                  <input
+                    type="text"
+                    name="mainRoute"
+                    className="input"
+                    value={form.mainRoute}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
 
                 <div className="field">

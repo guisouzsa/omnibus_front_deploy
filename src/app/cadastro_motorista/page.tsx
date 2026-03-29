@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDrivers } from "@/hooks";
+import { useMask } from "@/hooks/useMask";
+import { MASKS } from "@/utils/masks";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 function BusIcon({ size = 22, color = "currentColor" }: { size?: number; color?: string }) {
@@ -160,23 +162,50 @@ export default function CadastroMotoristaPage() {
   const router = useRouter();
   const { createDriver, loading } = useDrivers(false);
 
-  const [form, setForm] = useState({ nome: "", email: "", telefone: "", numeroCnh: "", senha: "", confirmarSenha: "" });
-  const [errorMessage, setErrorMessage]     = useState("");
+  const [form, setForm] = useState({
+    nome: "",
+    email: "",
+    telefone: "",
+    numeroCnh: "",
+    senha: "",
+    confirmarSenha: "",
+  });
+  const [errorMessage,   setErrorMessage]   = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     setErrorMessage("");
   };
+
+  // ── Máscaras ──────────────────────────────────────────────────────────────
+  const { ref: telefoneRef } = useMask(MASKS.telefone, handleChange);
+  const { ref: cnhRef      } = useMask(MASKS.cnh,      handleChange);
+  // ─────────────────────────────────────────────────────────────────────────
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(""); setSuccessMessage("");
-    if (!form.nome || !form.email || !form.telefone || !form.numeroCnh || !form.senha) { setErrorMessage("Preencha todos os campos"); return; }
-    if (form.senha !== form.confirmarSenha) { setErrorMessage("As senhas não coincidem"); return; }
-    if (form.senha.length < 8) { setErrorMessage("A senha deve ter pelo menos 8 caracteres"); return; }
+
+    if (!form.nome || !form.email || !form.telefone || !form.numeroCnh || !form.senha) {
+      setErrorMessage("Preencha todos os campos"); return;
+    }
+    if (form.senha !== form.confirmarSenha) {
+      setErrorMessage("As senhas não coincidem"); return;
+    }
+    if (form.senha.length < 8) {
+      setErrorMessage("A senha deve ter pelo menos 8 caracteres"); return;
+    }
+
     try {
-      await createDriver({ name: form.nome, email: form.email, phone_number: form.telefone, license_number: form.numeroCnh, password: form.senha, password_confirmation: form.confirmarSenha });
+      await createDriver({
+        name:                  form.nome,
+        email:                 form.email,
+        phone_number:          form.telefone,
+        license_number:        form.numeroCnh,
+        password:              form.senha,
+        password_confirmation: form.confirmarSenha,
+      });
       setSuccessMessage("Motorista cadastrado com sucesso!");
       setForm({ nome: "", email: "", telefone: "", numeroCnh: "", senha: "", confirmarSenha: "" });
       setTimeout(() => router.push("/lista_motoristas"), 1500);
@@ -229,36 +258,85 @@ export default function CadastroMotoristaPage() {
             <div className="card">
               {errorMessage   && <div className="alert alert-error">{errorMessage}</div>}
               {successMessage && <div className="alert alert-success">{successMessage}</div>}
+
               <form onSubmit={handleSubmit}>
                 <div className="field full">
                   <label className="label">Nome</label>
-                  <input type="text" name="nome" className="input" placeholder="Ex: José Bonifácio Sombra" value={form.nome} onChange={handleChange} />
+                  <input
+                    type="text"
+                    name="nome"
+                    className="input"
+                    placeholder="Ex: José Bonifácio Sombra"
+                    value={form.nome}
+                    onChange={handleChange}
+                  />
                 </div>
+
                 <div className="row">
                   <div className="field">
                     <label className="label">Email</label>
-                    <input type="email" name="email" className="input" placeholder="Ex: jose@gmail.com" value={form.email} onChange={handleChange} />
+                    <input
+                      type="email"
+                      name="email"
+                      className="input"
+                      placeholder="Ex: jose@gmail.com"
+                      value={form.email}
+                      onChange={handleChange}
+                    />
                   </div>
+
                   <div className="field">
                     <label className="label">Telefone</label>
-                    <input type="tel" name="telefone" className="input" placeholder="Ex: (88) 94002-8922" value={form.telefone} onChange={handleChange} />
+                    {/* ref da máscara — NÃO passa value/onChange aqui, o iMask controla o input */}
+                    <input
+                      ref={telefoneRef}
+                      type="tel"
+                      name="telefone"
+                      className="input"
+                      placeholder="Ex: (88) 94002-8922"
+                    />
                   </div>
                 </div>
+
                 <div className="field full">
                   <label className="label">Número da CNH</label>
-                  <input type="text" name="numeroCnh" className="input" placeholder="Ex: 07234567889" value={form.numeroCnh} onChange={handleChange} />
+                  <input
+                    ref={cnhRef}
+                    type="text"
+                    name="numeroCnh"
+                    className="input"
+                    placeholder="Ex: 07234567889"
+                  />
                 </div>
+
                 <div className="row">
                   <div className="field">
                     <label className="label">Senha (para login no app)</label>
-                    <input type="password" name="senha" className="input" placeholder="Mínimo 8 caracteres" value={form.senha} onChange={handleChange} />
+                    <input
+                      type="password"
+                      name="senha"
+                      className="input"
+                      placeholder="Mínimo 8 caracteres"
+                      value={form.senha}
+                      onChange={handleChange}
+                    />
                   </div>
                   <div className="field">
                     <label className="label">Confirmar Senha</label>
-                    <input type="password" name="confirmarSenha" className="input" placeholder="Digite a senha novamente" value={form.confirmarSenha} onChange={handleChange} />
+                    <input
+                      type="password"
+                      name="confirmarSenha"
+                      className="input"
+                      placeholder="Digite a senha novamente"
+                      value={form.confirmarSenha}
+                      onChange={handleChange}
+                    />
                   </div>
                 </div>
-                <button type="submit" className="btn" disabled={loading}>{loading ? "Cadastrando..." : "Cadastrar"}</button>
+
+                <button type="submit" className="btn" disabled={loading}>
+                  {loading ? "Cadastrando..." : "Cadastrar"}
+                </button>
               </form>
             </div>
           </div>

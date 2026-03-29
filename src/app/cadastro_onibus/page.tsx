@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useDrivers } from "@/hooks/useDrivers";
+import { useMask } from "@/hooks/useMask";
+import { MASKS } from "@/utils/masks";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 function BusIcon({ size = 22, color = "currentColor" }: { size?: number; color?: string }) {
@@ -161,19 +163,30 @@ export default function CadastroOnibusPage() {
   const { drivers, loading: driversLoading } = useDrivers();
 
   const [form, setForm] = useState({ plate: "", capacity: "", mainRoute: "", driver_id: "" });
-  const [submitError, setSubmitError]     = useState<string | null>(null);
+  const [submitError,   setSubmitError]   = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | { target: { name: string; value: string } }) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     setSubmitError(null); setSubmitSuccess(false);
   };
+
+  // ── Máscaras ──────────────────────────────────────────────────────────────
+  const { ref: placaRef } = useMask(MASKS.placa, handleChange);
+  // ─────────────────────────────────────────────────────────────────────────
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null); setSubmitSuccess(false);
-    if (!form.plate || !form.capacity || !form.mainRoute || !form.driver_id) { setSubmitError("Todos os campos são obrigatórios"); return; }
-    const success = await createVehicle({ plate: form.plate.toUpperCase(), capacity: parseInt(form.capacity), mainRoute: form.mainRoute, driver_id: parseInt(form.driver_id) });
+    if (!form.plate || !form.capacity || !form.mainRoute || !form.driver_id) {
+      setSubmitError("Todos os campos são obrigatórios"); return;
+    }
+    const success = await createVehicle({
+      plate:     form.plate.toUpperCase(),
+      capacity:  parseInt(form.capacity),
+      mainRoute: form.mainRoute,
+      driver_id: parseInt(form.driver_id),
+    });
     if (success) {
       setSubmitSuccess(true);
       setForm({ plate: "", capacity: "", mainRoute: "", driver_id: "" });
@@ -232,17 +245,44 @@ export default function CadastroOnibusPage() {
                 <div className="row">
                   <div className="field">
                     <label className="label">Placa do Veículo</label>
-                    <input type="text" name="plate" className="input" placeholder="Ex: ABC1D23" value={form.plate} onChange={handleChange} maxLength={7} required />
+                    {/* máscara de placa — iMask controla o input */}
+                    <input
+                      ref={placaRef}
+                      type="text"
+                      name="plate"
+                      className="input"
+                      placeholder="Ex: ABC1D23"
+                      maxLength={7}
+                      required
+                    />
                   </div>
                   <div className="field">
                     <label className="label">Capacidade</label>
-                    <input type="number" name="capacity" className="input" placeholder="Ex: 45" value={form.capacity} onChange={handleChange} min="1" required />
+                    {/* capacidade é number simples — sem máscara, React controla */}
+                    <input
+                      type="number"
+                      name="capacity"
+                      className="input"
+                      placeholder="Ex: 45"
+                      value={form.capacity}
+                      onChange={handleChange}
+                      min="1"
+                      required
+                    />
                   </div>
                 </div>
 
                 <div className="field">
                   <label className="label">Rota Principal</label>
-                  <input type="text" name="mainRoute" className="input" placeholder="Ex: Ingá - Centro" value={form.mainRoute} onChange={handleChange} required />
+                  <input
+                    type="text"
+                    name="mainRoute"
+                    className="input"
+                    placeholder="Ex: Ingá - Centro"
+                    value={form.mainRoute}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
 
                 <div className="field">
