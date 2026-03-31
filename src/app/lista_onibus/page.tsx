@@ -135,13 +135,13 @@ export default function OnibusCadastradosPage() {
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
               Motoristas
             </button>
-            <button className="oc-nav-item" onClick={() => router.push("/lista_alunos")}>
+            <button className="oc-nav-item" onClick={() => router.push("/lista_escolas")}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-              Alunos
+              Escolas
             </button>
           </nav>
           <div className="oc-sidebar-footer">
-            <button className="oc-user-row" onClick={() => router.push("/infor_instituicao")}>
+            <button className="oc-user-row" onClick={() => router.push("/perfil")}>
               <div className="oc-avatar">A</div>
               <div><div className="oc-user-name">Admin</div><div className="oc-user-role">Gestor</div></div>
             </button>

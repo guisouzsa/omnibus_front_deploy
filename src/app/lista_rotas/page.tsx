@@ -12,23 +12,9 @@ type Route = {
   departure_time: string;
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
-
-async function fetchRoutes(): Promise<Route[]> {
-  const res = await fetch(`${API_BASE_URL}/routes`);
-  if (!res.ok) throw new Error("Erro ao buscar rotas");
-  return res.json();
-}
-
-async function deleteRoute(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/routes/${id}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Erro ao excluir rota");
-}
-
 const css = `
   .rc-page { min-height: 100vh; background: #fff; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; display: flex; }
 
-  /* SIDEBAR */
   .rc-sidebar { width: 220px; background: #01233F; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
   .rc-sidebar-logo { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
   .rc-logo-icon { width: 34px; height: 34px; background: #f1bb13; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -46,10 +32,8 @@ const css = `
   .rc-user-name { font-size: 13px; font-weight: 600; color: #fff; }
   .rc-user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
 
-  /* CONTENT */
   .rc-content-wrap { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-  /* NAVBAR */
   .rc-navbar { background: #fff; border-bottom: 1px solid #e2e6ea; padding: 0 36px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
   .rc-topbar-title { font-size: 16px; font-weight: 600; color: #01233F; }
   .rc-topbar-sub { font-size: 12px; color: #6b7a8d; margin-top: 1px; font-weight: 400; }
@@ -58,11 +42,9 @@ const css = `
   .rc-icon-btn:hover { background: #f0f2f5; }
   .rc-notif-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: #ef4444; border-radius: 50%; border: 1.5px solid #fff; }
 
-  /* MAIN */
   .rc-main { padding: 32px 40px; }
   .rc-content { width: 100%; }
 
-  /* TOP BAR */
   .rc-top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; width: 100%; }
   .rc-title { font-size: 16px; font-weight: 900; color: #1a1a1a; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; margin: 0; }
   .rc-search-wrap { display: flex; align-items: center; background: #fff; border: 1.5px solid #e0e0e0; border-radius: 4px; padding: 0 12px; height: 38px; flex: 1; min-width: 180px; gap: 8px; }
@@ -71,7 +53,6 @@ const css = `
   .rc-btn-cadastrar { background: #f1bb13; border: none; border-radius: 4px; padding: 0 22px; height: 38px; font-size: 13px; font-weight: 900; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: background 0.15s; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
   .rc-btn-cadastrar:hover { background: #dba900; }
 
-  /* TABELA */
   .rc-table-wrap { width: 100%; overflow-x: auto; border-radius: 4px; }
   .rc-table { width: 100%; border-collapse: collapse; }
   .rc-table thead tr { background: #01233F; }
@@ -122,16 +103,11 @@ export default function RotasCadastradasPage() {
     router.push(`/editRota?id=${id}`);
   };
 
-  const handleViewMap = (id: number) => {
-    router.push(`/visualizar_rota?id=${id}`);
-  };
-
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className="rc-page">
 
-        {/* SIDEBAR */}
         <aside className="rc-sidebar">
           <div className="rc-sidebar-logo">
             <div className="rc-logo-icon">
@@ -165,13 +141,13 @@ export default function RotasCadastradasPage() {
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
               Motoristas
             </button>
-            <button className="rc-nav-item" onClick={() => router.push("/lista_alunos")}>
+            <button className="rc-nav-item" onClick={() => router.push("/lista_escolas")}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-              Alunos
+              Escolas
             </button>
           </nav>
           <div className="rc-sidebar-footer">
-            <button className="rc-user-row" onClick={() => router.push("/infor_instituicao")}>
+            <button className="rc-user-row" onClick={() => router.push("/perfil")}>
               <div className="rc-avatar">A</div>
               <div><div className="rc-user-name">Admin</div><div className="rc-user-role">Gestor</div></div>
             </button>
@@ -179,7 +155,6 @@ export default function RotasCadastradasPage() {
         </aside>
 
         <div className="rc-content-wrap">
-          {/* NAVBAR */}
           <header className="rc-navbar">
             <div>
               <div className="rc-topbar-title">Rotas</div>
@@ -199,14 +174,9 @@ export default function RotasCadastradasPage() {
                   <circle cx="12" cy="7" r="4" />
                 </svg>
               </button>
-              <button className="rc-btn-cadastrar" onClick={() => router.push("/lista_escolas")}
-              >
-                GERENCIAR ESCOLAS
-              </button>
             </div>
           </header>
 
-          {/* MAIN */}
           <main className="rc-main">
             <div className="rc-content">
               <div className="rc-top-bar">

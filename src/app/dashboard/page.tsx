@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks";
-import { expensesService } from "@/services/expenses.service";
+import { useAuth, useExpenses, useSpendingLimits } from "@/hooks";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
@@ -26,13 +25,12 @@ const recentActivity = [
 ];
 
 const quickActions = [
-  { id: "bus",    label: "Novo Ônibus",    description: "Cadastrar veículo na frota", route: "/cadastro_onibus",    icon: "bus",    accent: "#f1bb13" },
-  { id: "route",  label: "Nova Rota",      description: "Criar rota de transporte",   route: "/cadastro_rota",      icon: "route",  accent: "#f1bb13" },
-  { id: "driver", label: "Novo Motorista", description: "Registrar motorista",        route: "/cadastro_motorista", icon: "driver", accent: "#f1bb13" },
-  { id: "school", label: "Nova Escola",    description: "Adicionar instituição",      route: "/cadastrar_escola",   icon: "school", accent: "#f1bb13" },
+  { id: "bus",    label: "Novo Ônibus",    description: "Cadastrar veículo na frota", route: "/cadastro_onibus",    icon: "bus"    },
+  { id: "route",  label: "Nova Rota",      description: "Criar rota de transporte",   route: "/cadastro_rota",      icon: "route"  },
+  { id: "driver", label: "Novo Motorista", description: "Registrar motorista",        route: "/cadastro_motorista", icon: "driver" },
+  { id: "school", label: "Nova Escola",    description: "Adicionar instituição",      route: "/cadastrar_escola",   icon: "school" },
 ];
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
 function BusIcon({ size = 22, color = "currentColor" }: any) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -93,7 +91,7 @@ function UserIcon() {
 }
 function DashIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
       <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
     </svg>
@@ -101,7 +99,7 @@ function DashIcon() {
 }
 function FinanceIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
     </svg>
   );
@@ -126,7 +124,6 @@ const STATUS_LABELS: Record<string, string> = {
   new: "Novo", update: "Atualização", warning: "Alerta",
 };
 
-// ─── CSS ──────────────────────────────────────────────────────────────────────
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 
@@ -153,25 +150,22 @@ const css = `
   .db-sidebar { width: var(--sidebar-w); background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
   .db-sidebar-logo { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
   .db-logo-icon { width: 34px; height: 34px; background: var(--yellow); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .db-logo-text { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
-  .db-logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; margin-top: 1px; }
-  .db-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
-  .db-nav-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 1.2px; text-transform: uppercase; padding: 0 12px; margin: 12px 0 6px; }
-  .db-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,0.55); cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .db-logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+  .db-logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; font-weight: 400; margin-top: 1px; }
+  .db-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .db-nav-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 1.2px; text-transform: uppercase; padding: 0 12px; margin: 14px 0 6px; }
+  .db-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.55); cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
   .db-nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
-  .db-nav-item.active { background: var(--yellow); color: var(--navy); }
+  .db-nav-item.active { background: var(--yellow); color: var(--navy); font-weight: 600; }
   .db-nav-item.active svg { stroke: var(--navy); }
 
-  /* ── Footer sidebar ── */
-  .db-sidebar-footer { padding: 12px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 4px; }
+  .db-sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 4px; }
   .db-user-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background 0.15s; border: none; background: none; width: 100%; text-align: left; }
   .db-user-row:hover { background: rgba(255,255,255,0.07); }
-  .db-avatar { width: 32px; height: 32px; background: var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--navy); flex-shrink: 0; }
+  .db-avatar { width: 32px; height: 32px; background: var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--navy); flex-shrink: 0; }
   .db-user-name { font-size: 13px; font-weight: 600; color: #fff; }
   .db-user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
-
-  /* ── Botão logout ── */
-  .db-logout-btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 12px; border-radius: 8px; border: none; background: none; color: rgba(255,255,255,0.35); font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.15s; }
+  .db-logout-btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 12px; border-radius: 8px; border: none; background: none; color: rgba(255,255,255,0.35); font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.15s; }
   .db-logout-btn:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
 
   .db-content { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
@@ -185,7 +179,6 @@ const css = `
   .db-notif-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: var(--red); border-radius: 50%; border: 1.5px solid #fff; }
 
   .db-body { padding: 28px 32px; display: flex; flex-direction: column; gap: 28px; }
-
   .db-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .db-section-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
 
@@ -269,33 +262,34 @@ function getGreeting(name?: string): string {
   return name ? `Bem-vindo, ${name.split(" ")[0]}!` : "Bem-vindo!";
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { expenses, fetchExpenses } = useExpenses(false);
+  const { getLimitByPeriod } = useSpendingLimits(false);
   const [currentMonthLimit, setCurrentMonthLimit] = useState(0);
   const [activeNav, setActiveNav] = useState("dashboard");
 
-  // ── Logout ────────────────────────────────────────────────────────────────
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("token");
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-      });
+      if (token) {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
+        });
+      }
     } catch (err) {
       console.error("Erro ao deslogar:", err);
     } finally {
       localStorage.removeItem("token");
-      router.push("/login");
+      window.location.href = "/login";
     }
   };
-  // ─────────────────────────────────────────────────────────────────────────
 
   useEffect(() => { fetchExpenses({ per_page: 1000 }); }, []);
 
@@ -307,11 +301,7 @@ export default function DashboardPage() {
         if (!limit) { setCurrentMonthLimit(0); return; }
         setCurrentMonthLimit(parseNumber((limit as any).limit_amount ?? (limit as any).limit_value));
       })
-      .catch(() => {
-        setCurrentMonthExpenses(0);
-        setMinMonthExpenses(0);
-        setCurrentMonthLimit(0);
-      });
+      .catch(() => setCurrentMonthLimit(0));
   }, [user?.id]);
 
   const { currentMonthExpenses, minMonthExpenses } = useMemo(() => {
@@ -342,7 +332,6 @@ export default function DashboardPage() {
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className="db-layout">
 
-        {/* ── SIDEBAR ── */}
         <aside className="db-sidebar">
           <div className="db-sidebar-logo">
             <div className="db-logo-icon"><BusIcon size={18} color="#01233F" /></div>
@@ -361,13 +350,12 @@ export default function DashboardPage() {
               <FinanceIcon /> Financeiro
             </button>
             <span className="db-nav-label">Cadastros</span>
-            <button className="db-nav-item" onClick={() => router.push("/lista_onibus")}><BusIcon size={18} /> Ônibus</button>
-            <button className="db-nav-item" onClick={() => router.push("/lista_rotas")}><RouteIcon size={18} /> Rotas</button>
-            <button className="db-nav-item" onClick={() => router.push("/lista_motoristas")}><DriverIcon size={18} /> Motoristas</button>
-            <button className="db-nav-item" onClick={() => router.push("/lista_escolas")}><SchoolIcon size={18} /> Escolas</button>
+            <button className="db-nav-item" onClick={() => router.push("/lista_onibus")}><BusIcon size={17} /> Ônibus</button>
+            <button className="db-nav-item" onClick={() => router.push("/lista_rotas")}><RouteIcon size={17} /> Rotas</button>
+            <button className="db-nav-item" onClick={() => router.push("/lista_motoristas")}><DriverIcon size={17} /> Motoristas</button>
+            <button className="db-nav-item" onClick={() => router.push("/lista_escolas")}><SchoolIcon size={17} /> Escolas</button>
           </nav>
 
-          {/* ── Footer: perfil + botão sair ── */}
           <div className="db-sidebar-footer">
             <button className="db-user-row" onClick={() => router.push("/perfil")}>
               <div className="db-avatar">A</div>
@@ -376,7 +364,6 @@ export default function DashboardPage() {
                 <div className="db-user-role">Gestor</div>
               </div>
             </button>
-
             <button className="db-logout-btn" onClick={handleLogout}>
               <LogoutIcon />
               Sair
@@ -384,7 +371,6 @@ export default function DashboardPage() {
           </div>
         </aside>
 
-        {/* ── CONTENT ── */}
         <div className="db-content">
           <header className="db-topbar">
             <div>
@@ -405,7 +391,6 @@ export default function DashboardPage() {
 
           <div className="db-body">
 
-            {/* AÇÕES RÁPIDAS */}
             <div>
               <div className="db-section-header">
                 <span className="db-section-title">Ações Rápidas</span>
@@ -429,7 +414,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* GRÁFICO — largura total */}
             <div className="db-chart-card">
               <div className="db-card-header">
                 <span className="db-card-title">Gráfico de Gastos</span>
@@ -455,7 +439,6 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </div>
 
-            {/* MÉTRICAS FINANCEIRAS */}
             <div className="db-bottom-row">
               {dynamicFinancialMetrics.map((m) => (
                 <div key={m.label} className="db-metric-new">
@@ -469,7 +452,6 @@ export default function DashboardPage() {
               ))}
             </div>
 
-            {/* ATIVIDADE RECENTE */}
             <div className="db-activity-card">
               <div className="db-card-header">
                 <span className="db-card-title">Atividade Recente</span>
