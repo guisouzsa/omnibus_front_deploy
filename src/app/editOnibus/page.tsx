@@ -277,7 +277,7 @@ export default function EditarOnibus() {
                       placeholder="Ex: ABC1D23"
                       maxLength={7}
                       value={form.plate}
-                      onChange={syncPlaca}
+                      onChange={handleChange}
                       required
                     />
                   </div>

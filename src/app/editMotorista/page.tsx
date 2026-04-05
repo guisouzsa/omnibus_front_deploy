@@ -166,7 +166,7 @@ export default function EditarMotoristaPage() {
       setLoadingData(false);
     };
     loadDriver();
-  }, [driverId, getDriver, router]);
+  }, [driverId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
