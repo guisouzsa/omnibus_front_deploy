@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 const AVATARS = [
   "/avatars/avatar-1.png",
@@ -105,6 +106,7 @@ export default function PerfilPage() {
             <div className="avatar-sb">A</div>
             <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
           </button>
+          <SidebarLogoutButton />
         </div>
       </aside>
 

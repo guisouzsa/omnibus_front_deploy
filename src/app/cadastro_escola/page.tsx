@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSchools } from "@/hooks/useSchools";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 import { useRoutes } from "@/hooks/useRoutes";
 
 const css = `
@@ -183,6 +184,7 @@ export default function CadastroEscolaPage() {
               <div className="avatar">A</div>
               <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
+            <SidebarLogoutButton />
           </div>
         </aside>
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDrivers } from "@/hooks";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 function BusIcon({ size = 22, color = "currentColor" }: { size?: number; color?: string }) {
   return (
@@ -215,6 +216,7 @@ export default function EditarMotoristaPage() {
               <div className="avatar">A</div>
               <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
+            <SidebarLogoutButton />
           </div>
         </aside>
 

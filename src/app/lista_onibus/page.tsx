@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useVehicles } from "@/hooks/useVehicles";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 const css = `
   .oc-page { min-height: 100vh; background: #fff; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; display: flex; }
@@ -149,6 +150,7 @@ export default function OnibusCadastradosPage() {
               <div className="oc-avatar">A</div>
               <div><div className="oc-user-name">Admin</div><div className="oc-user-role">Gestor</div></div>
             </button>
+            <SidebarLogoutButton />
           </div>
         </aside>
 

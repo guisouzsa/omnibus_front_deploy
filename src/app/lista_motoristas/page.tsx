@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDrivers } from "@/hooks";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 const css = `
   .md-page { min-height: 100vh; background: #f9f9f9; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; display: flex; }
@@ -164,6 +165,7 @@ export default function MotoristasPage() {
               <div className="md-avatar">A</div>
               <div><div className="md-user-name">Admin</div><div className="md-user-role">Gestor</div></div>
             </button>
+            <SidebarLogoutButton />
           </div>
         </aside>
 

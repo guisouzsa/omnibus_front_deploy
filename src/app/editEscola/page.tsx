@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSchools } from "@/hooks/useSchools";
 import { useRoutes } from "@/hooks/useRoutes";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
@@ -218,6 +219,7 @@ export default function EditarEscolaPage() {
               <div className="avatar">A</div>
               <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
+            <SidebarLogoutButton />
           </div>
         </aside>
 

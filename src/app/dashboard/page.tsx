@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useExpenses, useSpendingLimits } from "@/hooks";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
@@ -106,16 +107,6 @@ function FinanceIcon() {
     </svg>
   );
 }
-function LogoutIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-      <polyline points="16 17 21 12 16 7"/>
-      <line x1="21" y1="12" x2="9" y2="12"/>
-    </svg>
-  );
-}
-
 const ICON_MAP: Record<string, (p: any) => React.ReactElement> = {
   bus: BusIcon, route: RouteIcon, driver: DriverIcon, school: SchoolIcon,
 };
@@ -272,27 +263,6 @@ export default function DashboardPage() {
   const [currentMonthLimit, setCurrentMonthLimit] = useState(0);
   const [activeNav, setActiveNav] = useState("dashboard");
 
-  const handleLogout = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-          },
-        });
-      }
-    } catch (err) {
-      console.error("Erro ao deslogar:", err);
-    } finally {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
-    }
-  };
-
   useEffect(() => { fetchExpenses({ per_page: 1000 }); }, []);
 
   useEffect(() => {
@@ -382,10 +352,7 @@ export default function DashboardPage() {
                 <div className="db-user-role">Gestor</div>
               </div>
             </button>
-            <button className="db-logout-btn" onClick={handleLogout}>
-              <LogoutIcon />
-              Sair
-            </button>
+            <SidebarLogoutButton />
           </div>
         </aside>
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 type NotificationType =
   | "route_started"
@@ -135,6 +136,7 @@ export default function NotificacoesPage() {
             <div className="avatar-sb">A</div>
             <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
           </button>
+          <SidebarLogoutButton />
         </div>
       </aside>
 

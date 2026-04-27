@@ -6,6 +6,7 @@ import { useVehicles } from "@/hooks/useVehicles";
 import { useDrivers } from "@/hooks/useDrivers";
 import { useMask } from "@/hooks/useMask";
 import { MASKS } from "@/utils/masks";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 function BusIcon({ size = 22, color = "currentColor" }: { size?: number; color?: string }) {
@@ -223,6 +224,7 @@ export default function CadastroOnibusPage() {
               <div className="avatar">A</div>
               <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
+            <SidebarLogoutButton />
           </div>
         </aside>
 

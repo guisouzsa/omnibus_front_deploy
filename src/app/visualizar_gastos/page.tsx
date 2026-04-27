@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useExpenses, useSpendingLimits } from "@/hooks";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 // ─── Icons sidebar ────────────────────────────────────────────────────────────
 function BusIcon({ size = 18, color = "currentColor" }: { size?: number; color?: string }) {
@@ -480,6 +481,7 @@ export default function GastosCadastradosPage() {
                 <div className="gc-user-role">Gestor</div>
               </div>
             </button>
+            <SidebarLogoutButton />
           </div>
         </aside>
 

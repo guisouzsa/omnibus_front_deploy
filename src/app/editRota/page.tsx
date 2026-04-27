@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRoutes } from "@/hooks/useRoutes";
 import { useSchools } from "@/hooks/useSchools";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 function BusIcon({ size = 22, color = "currentColor" }: { size?: number; color?: string }) {
@@ -260,6 +261,7 @@ export default function EditRotaPage() {
               <div className="avatar">A</div>
               <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
+            <SidebarLogoutButton />
           </div>
         </aside>
 
