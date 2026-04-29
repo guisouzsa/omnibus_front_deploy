@@ -225,6 +225,43 @@ const css = `
   .gc-feedback { text-align: center; font-size: 14px; padding: 32px; color: #aaa; }
   .gc-feedback.error { color: #c0392b; }
 
+  .gc-alert { 
+    margin-bottom: 20px; 
+    padding: 16px 20px; 
+    border-radius: 8px;
+    display: flex; 
+    align-items: center; 
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border-left: 5px solid;
+  }
+  .gc-alert-warning { 
+    background: #fff8e1; 
+    border-color: #f1bb13;
+    color: #856404;
+  }
+  .gc-alert-danger { 
+    background: #ffe5e5; 
+    border-color: #c0392b;
+    color: #721c24;
+  }
+  .gc-alert-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .gc-alert-content {
+    flex: 1;
+  }
+  .gc-alert-title {
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+  .gc-alert-message {
+    font-weight: 500;
+    font-size: 13px;
+  }
+
   @media (max-width: 900px) {
     :root { --sidebar-w: 0px; }
     .gc-sidebar { display: none; }
@@ -301,6 +338,32 @@ export default function GastosCadastradosPage() {
 
   const metaRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
+  const hasLoadedMetaRef = useRef(false);
+
+  // Carregar meta automaticamente ao abrir a página
+  useEffect(() => {
+    if (!user || hasLoadedMetaRef.current) return;
+    
+    hasLoadedMetaRef.current = true;
+    setMetaLoading(true);
+    
+    const { month, year } = getCurrentPeriod();
+    getLimitByPeriod(user.id, year, month)
+      .then((limit) => {
+        if (limit) {
+          setMeta(getLimitAmount(limit));
+          setLimitId(limit.id);
+        } else {
+          setMeta(null);
+          setLimitId(null);
+        }
+      })
+      .catch(() => {
+        setMeta(null);
+        setLimitId(null);
+      })
+      .finally(() => setMetaLoading(false));
+  }, [user]);
 
   useEffect(() => {
     function onMouseDown(e: MouseEvent) {
@@ -576,6 +639,35 @@ export default function GastosCadastradosPage() {
                   </div>
 
                 </div>
+
+                {meta && expenses.length > 0 && (() => {
+                  const totalExpenses = expenses.reduce((sum, e) => sum + (typeof e.value === 'string' ? parseFloat(e.value) : e.value || 0), 0);
+                  const percentage = (totalExpenses / meta) * 100;
+                  const metaExceeded = totalExpenses >= meta;
+                  
+                  if (metaExceeded || percentage >= 80) {
+                    return (
+                      <div className={`gc-alert ${metaExceeded ? 'gc-alert-danger' : 'gc-alert-warning'}`}>
+                        <div className="gc-alert-icon">
+                          {metaExceeded ? '⚠️' : '⚡'}
+                        </div>
+                        <div className="gc-alert-content">
+                          <div className="gc-alert-title">
+                            {metaExceeded ? 'META DE GASTOS ATINGIDA!' : 'ATENÇÃO: Limite próximo'}
+                          </div>
+                          <div className="gc-alert-message">
+                            {metaExceeded 
+                              ? `Gastos totais (${formatBRL(totalExpenses)}) atingiram a meta de ${formatBRL(meta)}`
+                              : `Você utilizou ${Math.round(percentage)}% da meta mensal. Total: ${formatBRL(totalExpenses)} de ${formatBRL(meta)}`
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
 
                 {/* TABELA */}
                 <div className="gc-table-wrap">
