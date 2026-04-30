@@ -50,11 +50,35 @@ export function useVehicles() {
     try {
       setLoading(true);
       setError(null);
+      
+      // Log do payload sendo enviado
+      console.log('[useVehicles] Enviando dados:', data);
+      
       await vehiclesService.create(data);
       await fetchVehicles();
       return true;
     } catch (err: any) {
-      setError(err.message || 'Erro ao criar veículo');
+      // Capturar resposta detalhada do erro
+      const errorMessage = err.response?.message || err.message || 'Erro ao criar veículo';
+      const errorDetails = err.response?.errors || err.response;
+      
+      console.error('[useVehicles] Erro ao criar veículo:', {
+        status: err.status,
+        message: errorMessage,
+        details: errorDetails,
+        fullResponse: err.response,
+      });
+      
+      // Construir mensagem de erro detalhada para o usuário
+      let fullErrorMessage = errorMessage;
+      if (errorDetails && typeof errorDetails === 'object') {
+        const details = Object.entries(errorDetails)
+          .map(([key, value]: [string, any]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+          .join(' | ');
+        if (details) fullErrorMessage += ` - ${details}`;
+      }
+      
+      setError(fullErrorMessage);
       return false;
     } finally {
       setLoading(false);
@@ -68,11 +92,35 @@ export function useVehicles() {
     try {
       setLoading(true);
       setError(null);
+      
+      // Log do payload sendo enviado
+      console.log(`[useVehicles] Atualizando veículo ${id}:`, data);
+      
       await vehiclesService.update(id, data);
       await fetchVehicles();
       return true;
     } catch (err: any) {
-      setError(err.message || 'Erro ao atualizar veículo');
+      // Capturar resposta detalhada do erro
+      const errorMessage = err.response?.message || err.message || 'Erro ao atualizar veículo';
+      const errorDetails = err.response?.errors || err.response;
+      
+      console.error(`[useVehicles] Erro ao atualizar veículo ${id}:`, {
+        status: err.status,
+        message: errorMessage,
+        details: errorDetails,
+        fullResponse: err.response,
+      });
+      
+      // Construir mensagem de erro detalhada para o usuário
+      let fullErrorMessage = errorMessage;
+      if (errorDetails && typeof errorDetails === 'object') {
+        const details = Object.entries(errorDetails)
+          .map(([key, value]: [string, any]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+          .join(' | ');
+        if (details) fullErrorMessage += ` - ${details}`;
+      }
+      
+      setError(fullErrorMessage);
       return false;
     } finally {
       setLoading(false);

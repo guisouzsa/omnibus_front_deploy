@@ -24,10 +24,12 @@ export interface Vehicle {
   driver_id: number | null;
   plate: string;
   capacity: number;
-  mainRoute: string;
+  route_id: number | null;
+  mainRoute?: string;
   created_at: string;
   updated_at: string;
   driver?: Driver;
+  route?: Route;
 }
 
 export interface School {
@@ -173,6 +175,7 @@ export interface CreateVehicleRequest {
   plate: string;
   capacity: number;
   mainRoute: string;
+  route_id?: number | null;
 }
 
 export interface UpdateVehicleRequest {
@@ -180,6 +183,7 @@ export interface UpdateVehicleRequest {
   plate?: string;
   capacity?: number;
   mainRoute?: string;
+  route_id?: number | null;
 }
 
 export interface CreateSchoolRequest {

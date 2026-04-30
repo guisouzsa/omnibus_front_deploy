@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useDrivers } from "@/hooks/useDrivers";
+import { useRoutes } from "@/hooks/useRoutes";
 import { useMask } from "@/hooks/useMask";
 import { MASKS } from "@/utils/masks";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
@@ -153,8 +154,9 @@ export default function EditarOnibus() {
 
   const { getVehicle, updateVehicle, loading: vehicleLoading, error: vehicleError } = useVehicles();
   const { drivers, loading: driversLoading } = useDrivers();
+  const { routes, fetchRoutes, loading: routesLoading } = useRoutes(false);
 
-  const [form, setForm] = useState({ plate: "", capacity: "", mainRoute: "", driver_id: "" });
+  const [form, setForm] = useState({ plate: "", capacity: "", mainRoute: "", route_id: "", driver_id: "" });
   const [loadingData,   setLoadingData]   = useState(true);
   const [submitError,   setSubmitError]   = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -172,12 +174,15 @@ export default function EditarOnibus() {
     if (!vehicleId) { router.push('/lista_onibus'); return; }
 
     const loadVehicle = async () => {
+      await fetchRoutes({ per_page: 100 });
+      
       const vehicle = await getVehicle(parseInt(vehicleId));
       if (vehicle) {
         setForm({
           plate:     vehicle.plate,
           capacity:  vehicle.capacity.toString(),
-          mainRoute: vehicle.mainRoute,
+          mainRoute: vehicle.mainRoute || "",
+          route_id:  vehicle.route_id ? vehicle.route_id.toString() : "",
           driver_id: vehicle.driver_id ? vehicle.driver_id.toString() : "",
         });
 
@@ -201,12 +206,18 @@ export default function EditarOnibus() {
     if (form.plate.length < 7) {
       setSubmitError("A placa deve ter exatamente 7 caracteres (ex: ABC1D23)"); return;
     }
-    const success = await updateVehicle(parseInt(vehicleId), {
+    
+    const payload = {
       plate:     form.plate.toUpperCase(),
       capacity:  parseInt(form.capacity),
       mainRoute: form.mainRoute,
+      route_id:  form.route_id ? parseInt(form.route_id) : null,
       driver_id: parseInt(form.driver_id),
-    });
+    };
+    
+    console.log(`[EditOnibus] Payload para veículo ${vehicleId}:`, payload);
+    
+    const success = await updateVehicle(parseInt(vehicleId), payload);
     if (success) {
       setSubmitSuccess(true);
       setTimeout(() => router.push("/lista_onibus"), 2000);
@@ -302,10 +313,25 @@ export default function EditarOnibus() {
 
                 <div className="field">
                   <label className="label">Rota Principal</label>
+                  {routesLoading ? (
+                    <div className="input" style={{ display: "flex", alignItems: "center", color: "#888" }}>Carregando rotas...</div>
+                  ) : (
+                    <select name="route_id" className="input" value={form.route_id} onChange={handleChange}>
+                      <option value="">Selecione uma rota</option>
+                      {routes.map((route) => (
+                        <option key={route.id} value={String(route.id)}>{route.name}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                <div className="field">
+                  <label className="label">Descrição da Rota</label>
                   <input
                     type="text"
                     name="mainRoute"
                     className="input"
+                    placeholder="Ex: Ingá - Centro - Timbaúba"
                     value={form.mainRoute}
                     onChange={handleChange}
                     required
@@ -319,7 +345,7 @@ export default function EditarOnibus() {
                   ) : (
                     <select name="driver_id" className="input" value={form.driver_id} onChange={handleChange} required>
                       <option value="">Selecione um motorista</option>
-                      {drivers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                      {drivers.map((d) => <option key={d.id} value={String(d.id)}>{d.name}</option>)}
                     </select>
                   )}
                 </div>

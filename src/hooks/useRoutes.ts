@@ -65,11 +65,22 @@ export function useRoutes(autoFetch = true) {
     setLoading(true);
     setError(null);
     try {
+      console.log('[useRoutes] Enviando dados da rota:', data);
       const response = await routesService.create(data);
       await fetchRoutes();
       return response;
     } catch (err: any) {
-      setError(err.message || 'Erro ao criar rota');
+      const errorMessage = err.response?.message || err.message || 'Erro ao criar rota';
+      const errorDetails = err.response?.errors || err.response;
+      
+      console.error('[useRoutes] Erro ao criar rota:', {
+        status: err.status,
+        message: errorMessage,
+        details: errorDetails,
+        fullResponse: err.response,
+      });
+      
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);

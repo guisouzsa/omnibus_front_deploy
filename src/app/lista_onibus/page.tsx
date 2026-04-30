@@ -58,6 +58,8 @@ const css = `
   .oc-td-bold { font-weight: 800; color: #1a1a1a; text-transform: uppercase; font-size: 12px; }
   .oc-td-driver { font-weight: 500; color: #444; }
   .oc-driver-pending { display: inline-block; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+  .oc-status-badge { display: inline-block; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+  .oc-status-pending { background: #fde8e8; color: #7f1d1d; border: 1px solid #fca5a5; }
   .oc-td-ops { display: flex; align-items: center; gap: 14px; }
   .oc-btn-excluir { background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 800; color: #c0392b; letter-spacing: 0.5px; text-transform: uppercase; padding: 0; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: opacity 0.15s; }
   .oc-btn-excluir:hover { opacity: 0.7; }
@@ -83,7 +85,7 @@ export default function OnibusCadastradosPage() {
   const filtered = (vehicles || []).filter(
     (v) =>
       v.plate.toLowerCase().includes(search.toLowerCase()) ||
-      v.mainRoute.toLowerCase().includes(search.toLowerCase()) ||
+      (v.route?.name || v.mainRoute || '').toLowerCase().includes(search.toLowerCase()) ||
       (v.driver?.name || '').toLowerCase().includes(search.toLowerCase())
   );
 
@@ -206,8 +208,8 @@ export default function OnibusCadastradosPage() {
                   <thead>
                     <tr>
                       <th>PLACA</th>
-                      <th>ROTA PRINCIPAL</th>
                       <th>CAPACIDADE</th>
+                      <th>ROTA PRINCIPAL</th>
                       <th>MOTORISTA PRINCIPAL</th>
                       <th>OPERAÇÕES</th>
                     </tr>
@@ -220,18 +222,27 @@ export default function OnibusCadastradosPage() {
                     ) : filtered.length === 0 ? (
                       <tr><td colSpan={5} className="oc-feedback">Nenhum ônibus encontrado.</td></tr>
                     ) : (
-                      filtered.reverse().map((v) => (
-                        <tr key={v.id}>
-                          <td className="oc-td-bold">{v.plate}</td>
-                          <td className="oc-td-bold">{v.mainRoute}</td>
-                          <td className="oc-td-bold">{v.capacity} ALUNOS</td>
-                          <td className="oc-td-driver">{v.driver?.name || 'N/A'}</td>
-                          <td className="oc-td-ops">
-                            <button className="oc-btn-excluir" onClick={() => handleDelete(v.id)}>EXCLUIR</button>
-                            <button className="oc-btn-editar" onClick={() => handleEdit(v.id)}>EDITAR</button>
-                          </td>
-                        </tr>
-                      ))
+                      filtered.reverse().map((v) => {
+                        const isPendingRoute = !v.route_id;
+                        return (
+                          <tr key={v.id}>
+                            <td className="oc-td-bold">{v.plate}</td>
+                            <td className="oc-td-bold">{v.capacity} ALUNOS</td>
+                            <td>
+                              {isPendingRoute ? (
+                                <span className="oc-status-badge oc-status-pending">PENDENTE</span>
+                              ) : (
+                                <span className="oc-td-bold">{v.route?.name || v.mainRoute || 'N/A'}</span>
+                              )}
+                            </td>
+                            <td className="oc-td-driver">{v.driver?.name || 'N/A'}</td>
+                            <td className="oc-td-ops">
+                              <button className="oc-btn-excluir" onClick={() => handleDelete(v.id)}>EXCLUIR</button>
+                              <button className="oc-btn-editar" onClick={() => handleEdit(v.id)}>EDITAR</button>
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>

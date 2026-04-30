@@ -215,17 +215,31 @@ export default function EditRotaPage() {
     setSubmitSuccess(false);
     try {
       const selectedSchool = schools.find((school) => school.id === Number(form.school_id));
-      await updateRoute(Number(routeId), {
+      
+      const payload = {
         ...form,
         school_id:      form.school_id ? Number(form.school_id) : null,
         end_point:      selectedSchool?.address || form.end_point,
         end_point_lat:  selectedSchool?.lat || undefined,
         end_point_lng:  selectedSchool?.lng || undefined,
-      });
+      };
+      
+      console.log(`[EditRota] Payload para rota ${routeId}:`, payload);
+      
+      await updateRoute(Number(routeId), payload);
       setSubmitSuccess(true);
       setTimeout(() => router.push("/lista_rotas"), 2000);
     } catch (err: any) {
-      setSubmitError(err?.message || "Erro ao atualizar rota");
+      const errorMessage = err?.response?.message || err?.message || "Erro ao atualizar rota";
+      const errorDetails = err?.response?.errors || err?.response;
+      
+      console.error(`[EditRota] Erro detalhado:`, {
+        status: err?.status,
+        message: errorMessage,
+        details: errorDetails,
+      });
+      
+      setSubmitError(errorMessage);
     }
   };
 
@@ -316,7 +330,7 @@ export default function EditRotaPage() {
                     <select name="school_id" className="input" value={form.school_id} onChange={handleChange}>
                       <option value="">Sem escola vinculada</option>
                       {schools.map((school) => (
-                        <option key={school.id} value={school.id}>{school.name} - {school.address}</option>
+                        <option key={school.id} value={String(school.id)}>{school.name} - {school.address}</option>
                       ))}
                     </select>
                   </div>

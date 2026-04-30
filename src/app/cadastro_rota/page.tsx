@@ -218,7 +218,8 @@ export default function CadastroRotaPage() {
         setSubmitError("Selecione a escola de parada final.");
         return;
       }
-      await createRoute({
+      
+      const payload = {
         name: form.name,
         school_id: selectedSchool.id,
         start_point_cep: form.start_point_cep,
@@ -230,14 +231,27 @@ export default function CadastroRotaPage() {
         end_point_lat: selectedSchool.lat || undefined,
         end_point_lng: selectedSchool.lng || undefined,
         departure_time: form.departure_time,
-      });
+      };
+      
+      console.log('[CadastroRota] Payload completo:', payload);
+      
+      await createRoute(payload);
       setSubmitSuccess(true);
       setForm({ name: "", start_point_cep: "", start_point: "", start_point_reference: "", departure_time: "", school_id: "" });
       setStartOptions([]);
       setSelectedStartIndex("");
       setTimeout(() => router.push("/lista_rotas"), 2000);
     } catch (err: any) {
-      setSubmitError(err?.message || "Erro ao cadastrar rota");
+      const errorMessage = err?.response?.message || err?.message || "Erro ao cadastrar rota";
+      const errorDetails = err?.response?.errors || err?.response;
+      
+      console.error('[CadastroRota] Erro detalhado:', {
+        status: err?.status,
+        message: errorMessage,
+        details: errorDetails,
+      });
+      
+      setSubmitError(errorMessage);
     }
   };
 
@@ -339,7 +353,7 @@ export default function CadastroRotaPage() {
                     <select className="input" name="school_id" value={form.school_id} onChange={handleChange} required>
                       <option value="">Selecione uma escola</option>
                       {schools.map((school) => (
-                        <option key={school.id} value={school.id}>{school.name} - {school.address}</option>
+                        <option key={school.id} value={String(school.id)}>{school.name} - {school.address}</option>
                       ))}
                     </select>
                   </div>
