@@ -379,11 +379,10 @@ export default function NotificacoesPage() {
         .topbar-right { display: flex; align-items: center; gap: 10px; }
         .icon-btn-top { width: 38px; height: 38px; border-radius: 8px; border: 1px solid #e2e6ea; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #01233F; transition: all 0.15s; position: relative; }
         .icon-btn-top:hover { background: #f0f2f5; }
-        .notif-dot-top { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: #ef4444; border-radius: 50%; border: 1.5px solid #fff; }
 
-        .main { display: flex; flex-direction: column; align-items: center; padding: 40px 30px; flex: 1; }
+        .main { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; flex: 1; }
 
-        .card { background: #ffffff; border-radius: 5px; width: 100%; max-width: 1350px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; }
+        .card { background: #ffffff; border-radius: 5px; width: 100%; max-width: 1000px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; }
         .card-header { background: #01233F; padding: 16px 28px; text-align: center; }
         .card-title { font-size: 15px; font-weight: 900; color: #ffffff; letter-spacing: 3px; text-transform: uppercase; }
 

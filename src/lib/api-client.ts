@@ -178,19 +178,27 @@ class ApiClient {
 
   public async patch<T = any>(
     endpoint: string,
-    body?: any
+    body?: any,
+    options?: { isFormData?: boolean }
   ): Promise<T> {
     const token = this.getToken();
+    const isFormData = options?.isFormData || body instanceof FormData;
+
+    const headers: HeadersInit = {
+      'Accept': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
+
     const url = this.buildURL(endpoint);
 
     const response = await this.executeFetch(url, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: JSON.stringify(body),
+      headers,
+      body: isFormData ? body : JSON.stringify(body),
       credentials: 'include',
     });
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, useExpenses, useSpendingLimits } from "@/hooks";
+import { useExpenses, useSpendingLimits } from "@/hooks";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 // ─── Icons sidebar ────────────────────────────────────────────────────────────
@@ -90,11 +90,17 @@ function ArrowIcon() {
     </svg>
   );
 }
+function CloseIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  );
+}
 
 // ─── CSS ──────────────────────────────────────────────────────────────────────
 const css = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -111,121 +117,88 @@ const css = `
     --sidebar-w: 220px;
   }
 
-  body { font-family: 'DM Sans', sans-serif; }
+  body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
 
-  .gc-layout { display: flex; min-height: 100vh; background: var(--bg); }
+  .oc-page { min-height: 100vh; background: #fff; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; display: flex; }
 
-  .gc-sidebar {
-    width: var(--sidebar-w);
-    background: var(--navy);
-    display: flex; flex-direction: column;
-    position: fixed; top: 0; left: 0; bottom: 0;
-    z-index: 100;
-  }
-  .gc-sidebar-logo {
-    padding: 24px 24px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    display: flex; align-items: center; gap: 10px;
-  }
-  .gc-logo-icon {
-    width: 34px; height: 34px; background: var(--yellow);
-    border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .gc-logo-text { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
-  .gc-logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; margin-top: 1px; }
-  .gc-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
-  .gc-nav-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 1.2px; text-transform: uppercase; padding: 0 12px; margin: 12px 0 6px; }
-  .gc-nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; border-radius: 8px;
-    font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,0.55);
-    cursor: pointer; border: none; background: none;
-    width: 100%; text-align: left; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
-  }
-  .gc-nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
-  .gc-nav-item.active { background: var(--yellow); color: var(--navy); }
-  .gc-nav-item.active svg { stroke: var(--navy); }
-  .gc-sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
-  .gc-user-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; border-radius: 8px;
-    cursor: pointer; transition: background 0.15s;
-    border: none; background: none; width: 100%; text-align: left;
-  }
-  .gc-user-row:hover { background: rgba(255,255,255,0.07); }
-  .gc-avatar { width: 32px; height: 32px; background: var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--navy); flex-shrink: 0; }
-  .gc-user-name { font-size: 13px; font-weight: 600; color: #fff; }
-  .gc-user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+  /* SIDEBAR */
+  .oc-sidebar { width: 220px; background: #01233F; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+  .oc-sidebar-logo { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+  .oc-logo-icon { width: 34px; height: 34px; background: #f1bb13; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .oc-logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+  .oc-logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; font-weight: 400; margin-top: 1px; }
+  .oc-sidebar-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .oc-nav-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 1.2px; text-transform: uppercase; padding: 0 12px; margin: 14px 0 6px; }
+  .oc-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.55); cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: all 0.15s; }
+  .oc-nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+  .oc-nav-item.active { background: #f1bb13; color: #01233F; font-weight: 600; }
+  .oc-sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .oc-user-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: background 0.15s; }
+  .oc-user-row:hover { background: rgba(255,255,255,0.07); }
+  .oc-avatar { width: 32px; height: 32px; background: #f1bb13; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #01233F; flex-shrink: 0; }
+  .oc-user-name { font-size: 13px; font-weight: 600; color: #fff; }
+  .oc-user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
 
-  .gc-content-wrap { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  /* CONTENT */
+  .oc-content-wrap { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-  .gc-topbar {
-    background: #fff; border-bottom: 1px solid var(--border);
-    padding: 0 32px; height: 60px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 50;
-  }
-  .gc-topbar-title { font-size: 18px; font-weight: 700; color: var(--text); }
-  .gc-topbar-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
-  .gc-topbar-right { display: flex; align-items: center; gap: 12px; }
-  .gc-icon-btn {
-    width: 38px; height: 38px; border-radius: 8px;
-    border: 1px solid var(--border); background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--text); transition: all 0.15s; position: relative;
-  }
-  .gc-icon-btn:hover { background: var(--bg); }
-  .gc-notif-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: var(--red); border-radius: 50%; border: 1.5px solid #fff; }
+  /* NAVBAR */
+  .oc-navbar { background: #fff; border-bottom: 1px solid #e2e6ea; padding: 0 36px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .oc-topbar-title { font-size: 16px; font-weight: 600; color: #01233F; }
+  .oc-topbar-sub { font-size: 12px; color: #6b7a8d; margin-top: 1px; font-weight: 400; }
+  .oc-nav-right { display: flex; align-items: center; gap: 10px; }
+  .oc-icon-btn { width: 38px; height: 38px; border-radius: 8px; border: 1px solid #e2e6ea; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #01233F; transition: all 0.15s; position: relative; }
+  .oc-icon-btn:hover { background: #f0f2f5; }
+  .oc-notif-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: #ef4444; border-radius: 50%; border: 1.5px solid #fff; }
 
-  .gc-page { min-height: 100vh; background: #f9f9f9; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
-  .gc-main { padding: 32px 40px; }
-  .gc-content { width: 100%; }
+  /* MAIN */
+  .oc-main { padding: 32px 40px; }
+  .oc-content { width: 100%; }
+  .oc-top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; width: 100%; }
+  .oc-title { font-size: 16px; font-weight: 900; color: #1a1a1a; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; margin: 0; }
+  .oc-btn-wrap { position: relative; flex-shrink: 0; }
+  .oc-btn-meta { background: #f1bb13; border: none; border-radius: 4px; padding: 0 22px; height: 38px; font-size: 13px; font-weight: 900; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: background 0.15s; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+  .oc-btn-meta:hover { background: #dba900; }
+  .oc-btn-cadastrar { background: #f1bb13; border: none; border-radius: 4px; padding: 0 22px; height: 38px; font-size: 13px; font-weight: 900; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: background 0.15s; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+  .oc-btn-cadastrar:hover { background: #dba900; }
 
-  .gc-top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; width: 100%; }
-  .gc-btn-wrap { position: relative; flex-shrink: 0; }
-  .gc-btn-meta { background: #f1bb13; border: none; border-radius: 4px; padding: 0 22px; height: 38px; font-size: 13px; font-weight: 900; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: background 0.15s; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
-  .gc-btn-meta:hover { background: #dba900; }
-  .gc-title { font-size: 16px; font-weight: 900; color: #1a1a1a; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; margin: 0; flex: 1; text-align: center; }
-  .gc-btn-cadastrar { background: #f1bb13; border: none; border-radius: 4px; padding: 0 22px; height: 38px; font-size: 13px; font-weight: 900; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: background 0.15s; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
-  .gc-btn-cadastrar:hover { background: #dba900; }
+  .oc-popover { position: absolute; top: calc(100% + 8px); left: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); padding: 16px; min-width: 220px; z-index: 100; }
+  .oc-popover-right { left: auto; right: 0; }
+  .oc-popover-label { font-size: 11px; font-weight: 800; color: #01233F; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .oc-meta-display { background: #f9f9f9; border: 1px solid #e8e8e8; border-radius: 5px; padding: 12px 14px; }
+  .oc-meta-display-value { font-size: 20px; font-weight: 900; color: #01233F; line-height: 1; }
+  .oc-meta-display-sub { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .oc-popover-input { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 4px; padding: 8px 10px; font-size: 13px; color: #333; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; outline: none; margin-bottom: 10px; box-sizing: border-box; }
+  .oc-popover-input:focus { border-color: #f1bb13; }
+  .oc-popover-save { width: 100%; background: none; border: 1.5px solid #f1bb13; border-radius: 4px; padding: 8px 0; font-size: 12px; font-weight: 900; color: #f1bb13; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: all 0.15s; }
+  .oc-popover-save:hover { background: #f1bb13; color: #fff; }
+  .oc-popover-save:disabled { opacity: 0.5; cursor: not-allowed; }
+  .oc-popover-msg { font-size: 11px; margin-top: 8px; }
+  .oc-popover-error { color: #c0392b; }
+  .oc-popover-success { color: #27ae60; }
+  .oc-meta-loading { font-size: 12px; color: #aaa; }
 
-  .gc-popover { position: absolute; top: calc(100% + 8px); left: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); padding: 16px; min-width: 220px; z-index: 100; }
-  .gc-popover-right { left: auto; right: 0; }
-  .gc-popover-label { font-size: 11px; font-weight: 800; color: #01233F; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-  .gc-meta-display { background: #f9f9f9; border: 1px solid #e8e8e8; border-radius: 5px; padding: 12px 14px; }
-  .gc-meta-display-value { font-size: 20px; font-weight: 900; color: #01233F; line-height: 1; }
-  .gc-meta-display-sub { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-  .gc-popover-input { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 4px; padding: 8px 10px; font-size: 13px; color: #333; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; outline: none; margin-bottom: 10px; box-sizing: border-box; }
-  .gc-popover-input:focus { border-color: #f1bb13; }
-  .gc-popover-save { width: 100%; background: none; border: 1.5px solid #f1bb13; border-radius: 4px; padding: 8px 0; font-size: 12px; font-weight: 900; color: #f1bb13; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: all 0.15s; }
-  .gc-popover-save:hover { background: #f1bb13; color: #fff; }
-  .gc-popover-save:disabled { opacity: 0.5; cursor: not-allowed; }
-  .gc-popover-msg { font-size: 11px; margin-top: 8px; }
-  .gc-popover-error { color: #c0392b; }
-  .gc-popover-success { color: #27ae60; }
-  .gc-meta-loading { font-size: 12px; color: #aaa; }
+  .oc-table-wrap { width: 100%; overflow-x: auto; border-radius: 4px; }
+  .oc-table { width: 100%; border-collapse: collapse; }
+  .oc-table thead tr { background: #01233F; }
+  .oc-table thead th { color: #fff; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 14px 18px; text-align: left; }
+  .oc-table tbody tr { border-bottom: 1px solid #e8e8e8; background: #fff; }
+  .oc-table tbody tr:hover { background: #fafafa; }
+  .oc-table tbody td { padding: 14px 18px; font-size: 13px; color: #333; }
+  .oc-td-bold { font-weight: 800; color: #1a1a1a; text-transform: uppercase; font-size: 12px; }
+  .oc-td-value { font-weight: 800; color: #01233F; font-size: 13px; }
+  .oc-td-ops { display: flex; align-items: center; gap: 14px; }
+  .oc-btn-excluir { background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 800; color: #c0392b; letter-spacing: 0.5px; text-transform: uppercase; padding: 0; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: opacity 0.15s; }
+  .oc-btn-excluir:hover { opacity: 0.7; }
+  .oc-btn-editar { background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 800; color: #333; letter-spacing: 0.5px; text-transform: uppercase; padding: 0; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: opacity 0.15s; }
+  .oc-btn-editar:hover { opacity: 0.6; }
+  .oc-btn-download { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 700; color: #01233F; text-decoration: underline; padding: 0; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: opacity 0.15s; }
+  .oc-btn-download:hover { opacity: 0.6; }
+  .oc-no-receipt { font-size: 12px; color: #bbb; font-style: italic; }
+  .oc-feedback { text-align: center; font-size: 14px; padding: 32px; color: #aaa; }
+  .oc-feedback.error { color: #c0392b; }
 
-  .gc-table-wrap { width: 100%; overflow-x: auto; border-radius: 4px; }
-  .gc-table { width: 100%; border-collapse: collapse; }
-  .gc-table thead tr { background: #01233F; }
-  .gc-table thead th { color: #fff; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 14px 18px; text-align: left; }
-  .gc-table tbody tr { border-bottom: 1px solid #e8e8e8; background: #fff; }
-  .gc-table tbody tr:hover { background: #fafafa; }
-  .gc-table tbody td { padding: 14px 18px; font-size: 13px; color: #333; }
-  .gc-td-bold { font-weight: 800; color: #1a1a1a; text-transform: uppercase; font-size: 12px; }
-  .gc-td-value { font-weight: 800; color: #01233F; font-size: 13px; }
-  .gc-td-ops { display: flex; align-items: center; gap: 14px; }
-  .gc-btn-excluir { background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 800; color: #c0392b; letter-spacing: 0.5px; text-transform: uppercase; padding: 0; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: opacity 0.15s; }
-  .gc-btn-excluir:hover { opacity: 0.7; }
-  .gc-btn-editar { background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 800; color: #333; letter-spacing: 0.5px; text-transform: uppercase; padding: 0; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: opacity 0.15s; }
-  .gc-btn-editar:hover { opacity: 0.6; }
-  .gc-btn-download { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 700; color: #01233F; text-decoration: underline; padding: 0; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: opacity 0.15s; }
-  .gc-btn-download:hover { opacity: 0.6; }
-  .gc-no-receipt { font-size: 12px; color: #bbb; font-style: italic; }
-  .gc-feedback { text-align: center; font-size: 14px; padding: 32px; color: #aaa; }
-  .gc-feedback.error { color: #c0392b; }
-
-  .gc-alert { 
+  .oc-alert { 
     margin-bottom: 20px; 
     padding: 16px 20px; 
     border-radius: 8px;
@@ -236,41 +209,50 @@ const css = `
     font-weight: 600;
     border-left: 5px solid;
   }
-  .gc-alert-warning { 
+  .oc-alert-warning { 
     background: #fff8e1; 
     border-color: #f1bb13;
     color: #856404;
   }
-  .gc-alert-danger { 
+  .oc-alert-danger { 
     background: #ffe5e5; 
     border-color: #c0392b;
     color: #721c24;
   }
-  .gc-alert-icon {
+  .oc-alert-icon {
     font-size: 20px;
     flex-shrink: 0;
   }
-  .gc-alert-content {
+  .oc-alert-content {
     flex: 1;
   }
-  .gc-alert-title {
+  .oc-alert-title {
     font-weight: 800;
     margin-bottom: 2px;
   }
-  .gc-alert-message {
+  .oc-alert-message {
     font-weight: 500;
     font-size: 13px;
   }
 
+  /* MODAL */
+  .oc-modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; }
+  .oc-modal { background: #fff; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 900px; width: 90%; max-height: 85vh; display: flex; flex-direction: column; }
+  .oc-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e8e8e8; }
+  .oc-modal-title { font-size: 16px; font-weight: 800; color: #01233F; }
+  .oc-modal-close { background: none; border: none; cursor: pointer; padding: 0; color: #6b7a8d; transition: color 0.15s; }
+  .oc-modal-close:hover { color: #01233F; }
+  .oc-modal-body { flex: 1; overflow-y: auto; padding: 24px; }
+  .oc-modal-iframe { width: 100%; height: 600px; border: none; border-radius: 4px; }
+  .oc-modal-empty { text-align: center; color: #999; font-size: 14px; }
+
   @media (max-width: 900px) {
-    :root { --sidebar-w: 0px; }
-    .gc-sidebar { display: none; }
-    .gc-content-wrap { margin-left: 0; }
-  }
-  @media (max-width: 700px) {
-    .gc-main { padding: 20px 16px; }
-    .gc-top-bar { flex-wrap: wrap; }
-    .gc-title { text-align: left; flex: none; width: 100%; order: -1; }
+    .oc-sidebar { display: none; }
+    .oc-content-wrap { margin-left: 0; }
+    .oc-main { padding: 20px 16px; }
+    .oc-top-bar { flex-direction: column; align-items: flex-start; }
+    .oc-modal { max-width: 95%; }
+    .oc-modal-iframe { height: 400px; }
   }
 `;
 
@@ -311,9 +293,8 @@ function getLimitAmount(limit: { limit_amount?: number | string; limit_value?: n
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function GastosCadastradosPage() {
+export default function VisualizarGastosPage() {
   const router = useRouter();
-  const { user } = useAuth();
   const {
     expenses,
     loading,
@@ -335,17 +316,25 @@ export default function GastosCadastradosPage() {
   const [saveError, setSaveError]       = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess]   = useState(false);
 
+  const [proofModal, setProofModal]     = useState<string | null>(null);
+
   const metaRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const hasLoadedMetaRef = useRef(false);
 
   // Carregar meta automaticamente ao abrir a página
   useEffect(() => {
-    if (!user || hasLoadedMetaRef.current) return;
+    if (hasLoadedMetaRef.current) return;
     
     hasLoadedMetaRef.current = true;
     setMetaLoading(true);
     
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!user.id) {
+      setMetaLoading(false);
+      return;
+    }
+
     const { month, year } = getCurrentPeriod();
     getLimitByPeriod(user.id, year, month)
       .then((limit) => {
@@ -362,7 +351,7 @@ export default function GastosCadastradosPage() {
         setLimitId(null);
       })
       .finally(() => setMetaLoading(false));
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     function onMouseDown(e: MouseEvent) {
@@ -379,15 +368,17 @@ export default function GastosCadastradosPage() {
     setShowMeta(opening);
 
     if (opening) {
-      if (!user) {
+      setMetaLoading(true);
+      setMetaError(null);
+
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user.id) {
         setMeta(null);
         setLimitId(null);
         setMetaError("Usuário não autenticado.");
+        setMetaLoading(false);
         return;
       }
-
-      setMetaLoading(true);
-      setMetaError(null);
 
       const { month, year } = getCurrentPeriod();
       getLimitByPeriod(user.id, year, month)
@@ -412,15 +403,16 @@ export default function GastosCadastradosPage() {
     setShowForm(opening);
     
     if (opening) {
-      // Se abre o formulário, carrega a meta existente para edição
-      if (!user) {
-        setSaveError("Usuário não autenticado.");
-        return;
-      }
-
       setMetaLoading(true);
       setSaveError(null);
       setSaveSuccess(false);
+
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user.id) {
+        setSaveError("Usuário não autenticado.");
+        setMetaLoading(false);
+        return;
+      }
 
       const { month, year } = getCurrentPeriod();
       getLimitByPeriod(user.id, year, month)
@@ -432,7 +424,6 @@ export default function GastosCadastradosPage() {
             setMetaInput(amount.toString());
             return;
           }
-          // Se não houver meta, deixa o formulário vazio para criar nova
           setMeta(null);
           setLimitId(null);
           setMetaInput("");
@@ -449,7 +440,9 @@ export default function GastosCadastradosPage() {
   const handleSave = async () => {
     const parsed = parseFloat(metaInput.replace(/\./g, "").replace(",", "."));
     if (isNaN(parsed) || parsed <= 0) { setSaveError("Informe um valor válido."); return; }
-    if (!user) { setSaveError("Usuário não autenticado."); return; }
+
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!user.id) { setSaveError("Usuário não autenticado."); return; }
 
     setSaving(true); setSaveError(null); setSaveSuccess(false);
 
@@ -483,56 +476,56 @@ export default function GastosCadastradosPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
-      <div className="gc-layout">
+      <div className="oc-page">
 
         {/* ── SIDEBAR ── */}
-        <aside className="gc-sidebar">
-          <div className="gc-sidebar-logo">
-            <div className="gc-logo-icon">
+        <aside className="oc-sidebar">
+          <div className="oc-sidebar-logo">
+            <div className="oc-logo-icon">
               <BusIcon size={18} color="#01233F" />
             </div>
             <div>
-              <div className="gc-logo-text">Omnibus</div>
-              <div className="gc-logo-sub">Gestão Escolar</div>
+              <div className="oc-logo-text">Omnibus</div>
+              <div className="oc-logo-sub">Gestão Escolar</div>
             </div>
           </div>
 
-          <nav className="gc-nav">
-            <span className="gc-nav-label">Principal</span>
+          <nav className="oc-sidebar-nav">
+            <span className="oc-nav-label">Principal</span>
             <button
-              className={`gc-nav-item ${activeNav === "dashboard" ? "active" : ""}`}
+              className={`oc-nav-item ${activeNav === "dashboard" ? "active" : ""}`}
               onClick={() => { setActiveNav("dashboard"); router.push("/dashboard"); }}
             >
               <DashIcon /> Dashboard
             </button>
             <button
-              className={`gc-nav-item ${activeNav === "financeiro" ? "active" : ""}`}
+              className={`oc-nav-item ${activeNav === "financeiro" ? "active" : ""}`}
               onClick={() => { setActiveNav("financeiro"); router.push("/visualizar_gastos"); }}
             >
               <FinanceIcon /> Financeiro
             </button>
 
-            <span className="gc-nav-label">Cadastros</span>
-            <button className="gc-nav-item" onClick={() => router.push("/lista_onibus")}>
+            <span className="oc-nav-label">Cadastros</span>
+            <button className="oc-nav-item" onClick={() => router.push("/lista_onibus")}>
               <BusIcon size={18} /> Ônibus
             </button>
-            <button className="gc-nav-item" onClick={() => router.push("/lista_rotas")}>
+            <button className="oc-nav-item" onClick={() => router.push("/lista_rotas")}>
               <RouteIcon size={18} /> Rotas
             </button>
-            <button className="gc-nav-item" onClick={() => router.push("/lista_motoristas")}>
+            <button className="oc-nav-item" onClick={() => router.push("/lista_motoristas")}>
               <DriverIcon size={18} /> Motoristas
             </button>
-            <button className="gc-nav-item" onClick={() => router.push("/lista_escolas")}>
+            <button className="oc-nav-item" onClick={() => router.push("/lista_escolas")}>
               <SchoolIcon size={18} /> Escolas
             </button>
           </nav>
 
-          <div className="gc-sidebar-footer">
-            <button className="gc-user-row" onClick={() => router.push("/perfil")}>
-              <div className="gc-avatar">A</div>
+          <div className="oc-sidebar-footer">
+            <button className="oc-user-row" onClick={() => router.push("/perfil")}>
+              <div className="oc-avatar">A</div>
               <div>
-                <div className="gc-user-name">Admin</div>
-                <div className="gc-user-role">Gestor</div>
+                <div className="oc-user-name">Admin</div>
+                <div className="oc-user-role">Gestor</div>
               </div>
             </button>
             <SidebarLogoutButton />
@@ -540,173 +533,192 @@ export default function GastosCadastradosPage() {
         </aside>
 
         {/* ── CONTENT ── */}
-        <div className="gc-content-wrap">
+        <div className="oc-content-wrap">
 
-          {/* ── TOPBAR — rotas corrigidas ✅ ── */}
-          <header className="gc-topbar">
+          {/* ── NAVBAR ── */}
+          <header className="oc-navbar">
             <div>
-              <div className="gc-topbar-title">Financeiro</div>
-              <div className="gc-topbar-sub">
+              <div className="oc-topbar-title">Financeiro</div>
+              <div className="oc-topbar-sub">
                 Gastos cadastrados · {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
               </div>
             </div>
-            <div className="gc-topbar-right">
-              {/* ✅ era /notifications → corrigido para /notificacoes */}
-              <button className="gc-icon-btn" onClick={() => router.push("/notificacoes")} title="Notificações">
+            <div className="oc-nav-right">
+              <button className="oc-icon-btn" onClick={() => router.push("/notificacoes")} title="Notificações">
                 <BellIcon />
-                <span className="gc-notif-dot" />
+                <span className="oc-notif-dot" />
               </button>
-              {/* ✅ era /infor_instituicao → corrigido para /perfil */}
-              <button className="gc-icon-btn" onClick={() => router.push("/perfil")} title="Perfil">
+              <button className="oc-icon-btn" onClick={() => router.push("/perfil")} title="Perfil">
                 <UserCircleIcon />
               </button>
             </div>
           </header>
 
           {/* ── CONTEÚDO ── */}
-          <div className="gc-page">
-            <main className="gc-main">
-              <div className="gc-content">
+          <main className="oc-main" style={{ background: '#f9f9f9' }}>
+            <div className="oc-content">
 
-                <div className="gc-top-bar">
+              <div className="oc-top-bar">
 
-                  {/* VER META */}
-                  <div className="gc-btn-wrap" ref={metaRef}>
-                    <button className="gc-btn-meta" onClick={handleOpenMeta}>
-                      VER META DE GASTOS
-                    </button>
-                    {showMeta && (
-                      <div className="gc-popover">
-                        <p className="gc-popover-label">Meta de gastos</p>
-                        {metaLoading ? (
-                          <p className="gc-meta-loading">Carregando...</p>
-                        ) : metaError ? (
-                          <p className="gc-popover-msg gc-popover-error">{metaError}</p>
-                        ) : meta !== null ? (
-                          <div className="gc-meta-display">
-                            <p className="gc-meta-display-value">{formatBRL(meta)}</p>
-                            <p className="gc-meta-display-sub">por mês</p>
-                          </div>
-                        ) : null}
-                      </div>
-                    )}
-                  </div>
-
-                  <h2 className="gc-title">GASTOS CADASTRADOS</h2>
-
-                  {/* CADASTRAR/EDITAR META */}
-                  <div className="gc-btn-wrap" ref={formRef}>
-                    <button className="gc-btn-cadastrar" onClick={handleOpenForm}>
-                      {meta ? "EDITAR META DE GASTOS" : "CADASTRAR META DE GASTOS"}
-                    </button>
-                    {showForm && (
-                      <div className="gc-popover gc-popover-right">
-                        <p className="gc-popover-label">
-                          <ArrowIcon />
-                          VALOR (POR MÊS)
-                        </p>
-                        {metaLoading ? (
-                          <p className="gc-meta-loading">Carregando...</p>
-                        ) : (
-                          <>
-                            <input
-                              type="text"
-                              className="gc-popover-input"
-                              placeholder="Ex.: R$ 280.000"
-                              value={metaInput}
-                              onChange={(e) => { setMetaInput(e.target.value); setSaveError(null); setSaveSuccess(false); }}
-                              onKeyDown={(e) => e.key === "Enter" && handleSave()}
-                              autoFocus
-                            />
-                            <button className="gc-popover-save" onClick={handleSave} disabled={saving}>
-                              {saving ? "SALVANDO..." : "SALVAR"}
-                            </button>
-                          </>
-                        )}
-                        {saveError   && <p className="gc-popover-msg gc-popover-error">{saveError}</p>}
-                        {saveSuccess && <p className="gc-popover-msg gc-popover-success">Meta salva com sucesso!</p>}
-                      </div>
-                    )}
-                  </div>
-
+                {/* VER META */}
+                <div className="oc-btn-wrap" ref={metaRef}>
+                  <button className="oc-btn-meta" onClick={handleOpenMeta}>
+                    VER META DE GASTOS
+                  </button>
+                  {showMeta && (
+                    <div className="oc-popover">
+                      <p className="oc-popover-label">Meta de gastos</p>
+                      {metaLoading ? (
+                        <p className="oc-meta-loading">Carregando...</p>
+                      ) : metaError ? (
+                        <p className="oc-popover-msg oc-popover-error">{metaError}</p>
+                      ) : meta !== null ? (
+                        <div className="oc-meta-display">
+                          <p className="oc-meta-display-value">{formatBRL(meta)}</p>
+                          <p className="oc-meta-display-sub">por mês</p>
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
 
-                {meta && expenses.length > 0 && (() => {
-                  const totalExpenses = expenses.reduce((sum, e) => sum + (typeof e.value === 'string' ? parseFloat(e.value) : e.value || 0), 0);
-                  const percentage = (totalExpenses / meta) * 100;
-                  const metaExceeded = totalExpenses >= meta;
-                  
-                  if (metaExceeded || percentage >= 80) {
-                    return (
-                      <div className={`gc-alert ${metaExceeded ? 'gc-alert-danger' : 'gc-alert-warning'}`}>
-                        <div className="gc-alert-icon">
-                          {metaExceeded ? '⚠️' : '⚡'}
-                        </div>
-                        <div className="gc-alert-content">
-                          <div className="gc-alert-title">
-                            {metaExceeded ? 'META DE GASTOS ATINGIDA!' : 'ATENÇÃO: Limite próximo'}
-                          </div>
-                          <div className="gc-alert-message">
-                            {metaExceeded 
-                              ? `Gastos totais (${formatBRL(totalExpenses)}) atingiram a meta de ${formatBRL(meta)}`
-                              : `Você utilizou ${Math.round(percentage)}% da meta mensal. Total: ${formatBRL(totalExpenses)} de ${formatBRL(meta)}`
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                })()}
+                <h2 className="oc-title">GASTOS CADASTRADOS</h2>
 
-
-                {/* TABELA */}
-                <div className="gc-table-wrap">
-                  <table className="gc-table">
-                    <thead>
-                      <tr>
-                        <th>PLACA</th>
-                        <th>MOTORISTA</th>
-                        <th>VALOR</th>
-                        <th>COMPROVANTE</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {loading ? (
-                        <tr><td colSpan={4} className="gc-feedback">Carregando gastos...</td></tr>
-                      ) : error ? (
-                        <tr><td colSpan={4} className="gc-feedback error">{error}</td></tr>
-                      ) : expenses.length === 0 ? (
-                        <tr><td colSpan={4} className="gc-feedback">Nenhum gasto encontrado.</td></tr>
+                {/* CADASTRAR/EDITAR META */}
+                <div className="oc-btn-wrap" ref={formRef}>
+                  <button className="oc-btn-cadastrar" onClick={handleOpenForm}>
+                    {meta ? "EDITAR META DE GASTOS" : "CADASTRAR META DE GASTOS"}
+                  </button>
+                  {showForm && (
+                    <div className="oc-popover oc-popover-right">
+                      <p className="oc-popover-label">
+                        <ArrowIcon />
+                        VALOR (POR MÊS)
+                      </p>
+                      {metaLoading ? (
+                        <p className="oc-meta-loading">Carregando...</p>
                       ) : (
-                        expenses.map((e) => (
-                          <tr key={e.id}>
-                            <td className="gc-td-bold">{e.vehicle_plate}</td>
-                            <td>{e.driver?.name ?? `Motorista #${e.driver_id}`}</td>
-                            <td className="gc-td-value">{formatBRL(e.value)}</td>
-                            <td>
-                              {e.proof_of_payment ? (
-                                <a href={getProofUrl(e.proof_of_payment) ?? "#"} target="_blank" rel="noopener noreferrer" className="gc-btn-download">
-                                  <DownloadIcon />
-                                  Baixar comprovante
-                                </a>
-                              ) : (
-                                <span className="gc-no-receipt">Sem comprovante</span>
-                              )}
-                            </td>
-                          </tr>
-                        ))
+                        <>
+                          <input
+                            type="text"
+                            className="oc-popover-input"
+                            placeholder="Ex.: R$ 280.000"
+                            value={metaInput}
+                            onChange={(e) => { setMetaInput(e.target.value); setSaveError(null); setSaveSuccess(false); }}
+                            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+                            autoFocus
+                          />
+                          <button className="oc-popover-save" onClick={handleSave} disabled={saving}>
+                            {saving ? "SALVANDO..." : "SALVAR"}
+                          </button>
+                        </>
                       )}
-                    </tbody>
-                  </table>
+                      {saveError   && <p className="oc-popover-msg oc-popover-error">{saveError}</p>}
+                      {saveSuccess && <p className="oc-popover-msg oc-popover-success">Meta salva com sucesso!</p>}
+                    </div>
+                  )}
                 </div>
 
               </div>
-            </main>
-          </div>
+
+              {meta && expenses.length > 0 && (() => {
+                const totalExpenses = expenses.reduce((sum, e) => sum + (typeof e.value === 'string' ? parseFloat(e.value) : e.value || 0), 0);
+                const percentage = (totalExpenses / meta) * 100;
+                const metaExceeded = totalExpenses >= meta;
+                
+                if (metaExceeded || percentage >= 80) {
+                  return (
+                    <div className={`oc-alert ${metaExceeded ? 'oc-alert-danger' : 'oc-alert-warning'}`}>
+                      <div className="oc-alert-icon">
+                        {metaExceeded ? '⚠️' : '⚡'}
+                      </div>
+                      <div className="oc-alert-content">
+                        <div className="oc-alert-title">
+                          {metaExceeded ? 'META DE GASTOS ATINGIDA!' : 'ATENÇÃO: Limite próximo'}
+                        </div>
+                        <div className="oc-alert-message">
+                          {metaExceeded 
+                            ? `Gastos totais (${formatBRL(totalExpenses)}) atingiram a meta de ${formatBRL(meta)}`
+                            : `Você utilizou ${Math.round(percentage)}% da meta mensal. Total: ${formatBRL(totalExpenses)} de ${formatBRL(meta)}`
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+
+
+              {/* TABELA */}
+              <div className="oc-table-wrap">
+                <table className="oc-table">
+                  <thead>
+                    <tr>
+                      <th>PLACA</th>
+                      <th>MOTORISTA</th>
+                      <th>VALOR</th>
+                      <th>COMPROVANTE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      <tr><td colSpan={4} className="oc-feedback">Carregando gastos...</td></tr>
+                    ) : error ? (
+                      <tr><td colSpan={4} className="oc-feedback error">{error}</td></tr>
+                    ) : expenses.length === 0 ? (
+                      <tr><td colSpan={4} className="oc-feedback">Nenhum gasto encontrado.</td></tr>
+                    ) : (
+                      expenses.map((e) => (
+                        <tr key={e.id}>
+                          <td className="oc-td-bold">{e.vehicle_plate}</td>
+                          <td>{e.driver?.name ?? `Motorista #${e.driver_id}`}</td>
+                          <td className="oc-td-value">{formatBRL(e.value)}</td>
+                          <td>
+                            {e.proof_of_payment ? (
+                              <button className="oc-btn-download" onClick={() => setProofModal(getProofUrl(e.proof_of_payment) || "")}>
+                                <DownloadIcon />
+                                Visualizar comprovante
+                              </button>
+                            ) : (
+                              <span className="oc-no-receipt">Sem comprovante</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </main>
 
         </div>
       </div>
+
+      {/* ── MODAL COMPROVANTE ── */}
+      {proofModal && (
+        <div className="oc-modal-backdrop" onClick={() => setProofModal(null)}>
+          <div className="oc-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="oc-modal-header">
+              <h3 className="oc-modal-title">Comprovante de Pagamento</h3>
+              <button className="oc-modal-close" onClick={() => setProofModal(null)}>
+                <CloseIcon />
+              </button>
+            </div>
+            <div className="oc-modal-body">
+              {proofModal.startsWith("data:") || proofModal.includes(".pdf") ? (
+                <iframe src={proofModal} className="oc-modal-iframe" title="Comprovante" />
+              ) : proofModal.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                <img src={proofModal} style={{ maxWidth: "100%", borderRadius: "4px" }} alt="Comprovante" />
+              ) : (
+                <iframe src={proofModal} className="oc-modal-iframe" title="Comprovante" />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

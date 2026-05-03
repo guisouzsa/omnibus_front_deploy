@@ -3,10 +3,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useExpenses, useSpendingLimits } from "@/hooks";
+import { notificationsService } from "@/services";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
+import { Notification } from "@/types/api";
 
 const chartData = [
   { mes: "Jan", valor: 210000 }, { mes: "Fev", valor: 195000 },
@@ -19,13 +21,35 @@ const chartData = [
 
 const defaultChartData = chartData;
 
-const recentActivity = [
-  { type: "bus",    text: "Ônibus #07 adicionado à frota",         time: "há 12 min",  status: "new"     },
-  { type: "route",  text: "Rota Norte-Sul atualizada",             time: "há 45 min",  status: "update"  },
-  { type: "driver", text: "Motorista Carlos Silva cadastrado",     time: "há 2 horas", status: "new"     },
-  { type: "alert",  text: "Manutenção preventiva: Ônibus #03",     time: "há 3 horas", status: "warning" },
-  { type: "route",  text: "Rota Leste desativada temporariamente", time: "há 5 horas", status: "warning" },
-];
+// Mapeamento de tipos de notificação para ícones e labels
+const NOTIFICATION_TYPE_MAP: Record<string, { icon: React.ReactElement; text: string; status: string }> = {
+  route_started:      { icon: (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#01233F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><circle cx="7" cy="18" r="1.5" fill="#01233F"/><circle cx="17" cy="18" r="1.5" fill="#01233F"/></svg>), text: "Rota iniciada", status: "new" },
+  route_finished:     { icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>), text: "Rota finalizada", status: "new" },
+  route_delayed:      { icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>), text: "Atraso na rota", status: "warning" },
+  vehicle_changed:    { icon: (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#01233F" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7h13v8H3z"/><path d="M16 8l4 4-4 4"/></svg>), text: "Troca de veículo", status: "update" },
+  route_maintenance:  { icon: (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#01233F" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2l4 4-8 8-4 1 1-4 8-8z"/></svg>), text: "Mau funcionamento", status: "warning" },
+  checkpoint_reached: { icon: (<svg width="14" height="18" viewBox="0 0 24 24" fill="none" stroke="#01233F" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2" fill="#01233F"/></svg>), text: "Ponto alcançado", status: "new" },
+  driver_changed:     { icon: (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#01233F" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3"/><path d="M5 20v-1a7 7 0 0 1 14 0v1"/></svg>), text: "Motorista alterado", status: "update" },
+  no_transport:       { icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>), text: "Sem transporte", status: "warning" },
+  expense_added:      { icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#01233F" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1v22"/><path d="M6 7h12"/></svg>), text: "Despesa adicionada", status: "new" },
+  route_assigned:     { icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#01233F" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="6" rx="1"/><path d="M3 14h18v6H3z"/></svg>), text: "Rota atribuída", status: "new" },
+};
+
+function formatNotificationDate(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffMinutes = Math.floor(diffTime / (1000 * 60));
+  const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffMinutes < 1) return "agora";
+  if (diffMinutes < 60) return `há ${diffMinutes}m`;
+  if (diffHours < 24) return `há ${diffHours}h`;
+  if (diffDays === 1) return "ontem";
+  if (diffDays < 30) return `há ${diffDays}d`;
+  return date.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
+}
 
 const quickActions = [
   { id: "bus",    label: "Novo Ônibus",    description: "Cadastrar veículo na frota", route: "/cadastro_onibus",    icon: "bus"    },
@@ -262,8 +286,27 @@ export default function DashboardPage() {
   const { getLimitByPeriod } = useSpendingLimits(false);
   const [currentMonthLimit, setCurrentMonthLimit] = useState(0);
   const [activeNav, setActiveNav] = useState("dashboard");
+  const [recentNotifications, setRecentNotifications] = useState<Notification[]>([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
 
   useEffect(() => { fetchExpenses({ per_page: 1000 }); }, []);
+
+  useEffect(() => {
+    loadRecentNotifications();
+  }, []);
+
+  const loadRecentNotifications = async () => {
+    try {
+      setLoadingNotifications(true);
+      const response = await notificationsService.getAll({ per_page: 5 });
+      setRecentNotifications(response.data || []);
+    } catch (err) {
+      console.error("Erro ao carregar notificações:", err);
+      setRecentNotifications([]);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  };
 
   useEffect(() => {
     if (!user?.id) { setCurrentMonthLimit(0); return; }
@@ -440,25 +483,38 @@ export default function DashboardPage() {
             <div className="db-activity-card">
               <div className="db-card-header">
                 <span className="db-card-title">Atividade Recente</span>
-                <button className="db-btn-primary" onClick={() => router.push("/visualizar_gastos")}>
-                  Visualizar Gastos
+                <button className="db-btn-primary" onClick={() => router.push("/notificacoes")}>
+                  Ver Todas as Notificações
                 </button>
               </div>
               <div className="db-activity-list">
-                {recentActivity.map((a, i) => (
-                  <div key={i} className="db-activity-item">
-                    <div className="db-act-dot" style={{ background: STATUS_COLORS[a.status] }} />
-                    <div style={{ flex: 1 }}>
-                      <div className="db-act-text">{a.text}</div>
-                      <div className="db-act-meta">
-                        <span className="db-act-time">{a.time}</span>
-                        <span className="db-act-badge" style={{ background: STATUS_COLORS[a.status] + "20", color: STATUS_COLORS[a.status] }}>
-                          {STATUS_LABELS[a.status]}
-                        </span>
+                {recentNotifications.length > 0 ? (
+                  recentNotifications.map((notif, i) => {
+                    const typeInfo = NOTIFICATION_TYPE_MAP[notif.type as keyof typeof NOTIFICATION_TYPE_MAP];
+                    const statusInfo = STATUS_COLORS[typeInfo?.status] ? { color: STATUS_COLORS[typeInfo.status], label: STATUS_LABELS[typeInfo.status] } : { color: STATUS_COLORS.new, label: STATUS_LABELS.new };
+                    return (
+                      <div key={i} className="db-activity-item">
+                        <div className="db-act-dot" style={{ background: statusInfo.color }} />
+                        <div style={{ flex: 1 }}>
+                          <div className="db-act-text" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {typeInfo?.icon && <span style={{ display: 'inline-flex', alignItems: 'center' }}>{typeInfo.icon}</span>}
+                            <span>{typeInfo?.text || notif.message}</span>
+                          </div>
+                          <div className="db-act-meta">
+                            <span className="db-act-time">{formatNotificationDate(notif.created_at)}</span>
+                            <span className="db-act-badge" style={{ background: statusInfo.color + "20", color: statusInfo.color }}>
+                              {statusInfo.label}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    );
+                  })
+                ) : (
+                  <div style={{ padding: "16px", textAlign: "center", color: "#9ca3af", fontSize: "13px" }}>
+                    Nenhuma notificação recente
                   </div>
-                ))}
+                )}
               </div>
             </div>
 

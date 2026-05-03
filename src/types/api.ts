@@ -276,3 +276,40 @@ export interface ExpensesDashboardSummary {
   min_month_expenses: number;
   current_month_limit: number;
 }
+
+// Tipos de notificações
+export type NotificationType =
+  | 'route_started'
+  | 'route_finished'
+  | 'route_delayed'
+  | 'vehicle_changed'
+  | 'route_maintenance'
+  | 'checkpoint_reached'
+  | 'driver_changed'
+  | 'no_transport'
+  | 'expense_added'
+  | 'route_assigned';
+
+export interface Notification {
+  id: number;
+  driver_id: number;
+  route_id: number;
+  type: NotificationType;
+  message: string;
+  read: boolean;
+  read_at?: string | null;
+  created_at: string;
+  updated_at: string;
+  driver?: Driver;
+  route?: Route;
+}
+
+export interface CreateNotificationRequest {
+  type: NotificationType;
+  message: string;
+  route_id: number;
+}
+
+export interface UnreadCountResponse {
+  unread_count: number;
+}
