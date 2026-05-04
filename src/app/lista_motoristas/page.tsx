@@ -247,8 +247,8 @@ export default function MotoristasPage() {
                       </div>
                       <div className="md-divider" />
                       <div className="md-card-actions">
-                        <button className="md-btn-excluir" onClick={() => handleDelete(d.id, d.name)}>EXCLUIR</button>
                         <button className="md-btn-editar" onClick={() => handleEdit(d.id)}>EDITAR</button>
+                        <button className="md-btn-excluir" onClick={() => handleDelete(d.id, d.name)}>EXCLUIR</button>
                       </div>
                     </div>
                   ))}

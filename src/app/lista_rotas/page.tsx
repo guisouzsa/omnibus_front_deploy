@@ -230,8 +230,8 @@ export default function ListaRotasPage() {
                           <td className="oc-td-time">{r.departure_time}</td>
                           <td className="oc-td-ops">
                             <button className="oc-btn-mapa"    onClick={() => router.push(`/visualizar_rota?id=${r.id}`)}>MAPA</button>
-                            <button className="oc-btn-excluir" onClick={() => handleDelete(r.id)}>EXCLUIR</button>
                             <button className="oc-btn-editar"  onClick={() => router.push(`/editRota?id=${r.id}`)}>EDITAR</button>
+                            <button className="oc-btn-excluir" onClick={() => handleDelete(r.id)}>EXCLUIR</button>
                           </td>
                         </tr>
                       ))

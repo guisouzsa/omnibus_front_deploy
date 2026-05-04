@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSchools } from "@/hooks/useSchools";
+import { maskCEP, unmaskCEP } from "@/utils/mask";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 import { useRoutes } from "@/hooks/useRoutes";
 
@@ -104,7 +105,14 @@ export default function CadastroEscolaPage() {
   const [searchingCep,  setSearchingCep]  = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    let value = e.target.value;
+    
+    // Aplicar máscara ao CEP
+    if (e.target.name === "cep") {
+      value = maskCEP(value);
+    }
+    
+    setForm({ ...form, [e.target.name]: value });
     setSubmitError(null);
     setSubmitSuccess(false);
   };
@@ -113,7 +121,7 @@ export default function CadastroEscolaPage() {
     setSearchingCep(true);
     setSubmitError(null);
     try {
-      const options = await getAddressesByCep(form.cep);
+      const options = await getAddressesByCep(unmaskCEP(form.cep));
       if (!options.length) { setSubmitError("Não encontramos endereços para esse CEP."); return; }
       setForm((prev) => ({ ...prev, address: options[0].address }));
     } catch (err: any) {
@@ -221,7 +229,7 @@ export default function CadastroEscolaPage() {
                   <div className="field">
                     <label className="label">CEP</label>
                     <div className="cep-row">
-                      <input type="text" name="cep" className="input" placeholder="Ex: 58000000" value={form.cep} onChange={handleChange} required />
+                      <input type="text" name="cep" className="input" placeholder="Ex: 58000-000" value={form.cep} onChange={handleChange} required />
                       <button type="button" className="btn-cep" onClick={handleSearchCep} disabled={searchingCep || !form.cep}>
                         {searchingCep ? "..." : "Buscar"}
                       </button>

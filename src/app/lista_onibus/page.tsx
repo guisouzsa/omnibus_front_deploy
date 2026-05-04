@@ -237,8 +237,8 @@ export default function OnibusCadastradosPage() {
                             </td>
                             <td className="oc-td-driver">{v.driver?.name || 'N/A'}</td>
                             <td className="oc-td-ops">
-                              <button className="oc-btn-excluir" onClick={() => handleDelete(v.id)}>EXCLUIR</button>
                               <button className="oc-btn-editar" onClick={() => handleEdit(v.id)}>EDITAR</button>
+                              <button className="oc-btn-excluir" onClick={() => handleDelete(v.id)}>EXCLUIR</button>
                             </td>
                           </tr>
                         );

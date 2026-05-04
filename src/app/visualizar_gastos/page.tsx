@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useExpenses, useSpendingLimits } from "@/hooks";
+import { maskCurrency, unmaskCurrency } from "@/utils/mask";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
+import SchoolIcon from "@/components/SchoolIcon";
 
 // ─── Icons sidebar ────────────────────────────────────────────────────────────
 function BusIcon({ size = 18, color = "currentColor" }: { size?: number; color?: string }) {
@@ -30,14 +32,6 @@ function DriverIcon({ size = 18 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="7" r="4"/>
       <path d="M5 21v-2a7 7 0 0 1 14 0v2"/>
-    </svg>
-  );
-}
-function SchoolIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-      <polyline points="9 22 9 12 15 12 15 22"/>
     </svg>
   );
 }
@@ -460,7 +454,7 @@ export default function VisualizarGastosPage() {
   };
 
   const handleSave = async () => {
-    const parsed = parseFloat(metaInput.replace(/\./g, "").replace(",", "."));
+    const parsed = unmaskCurrency(metaInput);
     if (isNaN(parsed) || parsed <= 0) { setSaveError("Informe um valor válido."); return; }
 
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -602,7 +596,12 @@ export default function VisualizarGastosPage() {
                             className="oc-popover-input"
                             placeholder="Ex.: R$ 280.000"
                             value={metaInput}
-                            onChange={(e) => { setMetaInput(e.target.value); setSaveError(null); setSaveSuccess(false); }}
+                            onChange={(e) => { 
+                              const masked = maskCurrency(e.target.value);
+                              setMetaInput(masked); 
+                              setSaveError(null); 
+                              setSaveSuccess(false); 
+                            }}
                             onKeyDown={(e) => e.key === "Enter" && handleSave()}
                             autoFocus
                           />

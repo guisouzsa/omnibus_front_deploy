@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth, useExpenses, useSpendingLimits } from "@/hooks";
 import { notificationsService, routesService } from "@/services";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
+import SchoolIcon from "@/components/SchoolIcon";
 import {
   AreaChart, Area, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
@@ -89,14 +90,6 @@ function DriverIcon({ size = 22, color = "currentColor" }: any) {
       <circle cx="12" cy="7" r="4"/>
       <path d="M5 21v-2a7 7 0 0 1 14 0v2"/>
       <path d="M8 7 Q12 3 16 7" fill="none"/>
-    </svg>
-  );
-}
-function SchoolIcon({ size = 22, color = "currentColor" }: any) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-      <polyline points="9 22 9 12 15 12 15 22"/>
     </svg>
   );
 }

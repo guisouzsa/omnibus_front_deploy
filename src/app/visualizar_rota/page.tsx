@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRoutes } from "@/hooks/useRoutes";
+import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 declare global {
   interface Window {
@@ -39,24 +40,96 @@ function CheckCircleIcon() {
     </svg>
   );
 }
+function SchoolIcon({ size = 18, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}
+function BusIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 9h20"/><path d="M8 4V2"/><path d="M16 4V2"/>
+      <circle cx="7" cy="20" r="2" fill="currentColor" stroke="currentColor"/><circle cx="17" cy="20" r="2" fill="currentColor" stroke="currentColor"/>
+      <path d="M5 18h14"/>
+    </svg>
+  );
+}
+function RouteIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/>
+    </svg>
+  );
+}
+function DriverIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>
+    </svg>
+  );
+}
+function DashboardIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" />
+      <rect x="14" y="3" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" />
+      <rect x="14" y="14" width="7" height="7" />
+    </svg>
+  );
+}
+function FinanceIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </svg>
+  );
+}
 
 // ─── CSS ──────────────────────────────────────────────────────────────────────
 const css = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
   
-  .vr-page { min-height: 100vh; background: #f9f9f9; }
+  .vr-page { min-height: 100vh; background: #f9f9f9; display: flex; }
+  
+  /* SIDEBAR */
+  .vr-sidebar { width: 220px; background: #01233F; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+  .vr-sidebar-logo { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+  .vr-logo-icon { width: 34px; height: 34px; background: #f1bb13; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #01233F; }
+  .vr-logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+  .vr-logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; font-weight: 400; margin-top: 1px; }
+  .vr-sidebar-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .vr-nav-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 1.2px; text-transform: uppercase; padding: 0 12px; margin: 14px 0 6px; }
+  .vr-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.55); cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; transition: all 0.15s; }
+  .vr-nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+  .vr-nav-item.active { background: #f1bb13; color: #01233F; font-weight: 600; }
+  .vr-sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .vr-user-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: background 0.15s; }
+  .vr-user-row:hover { background: rgba(255,255,255,0.07); }
+  .vr-user-avatar { width: 32px; height: 32px; background: #f1bb13; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #01233F; flex-shrink: 0; }
+  .vr-user-name { font-size: 13px; font-weight: 600; color: #fff; }
+  .vr-user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+  
+  /* CONTENT WRAPPER */
+  .vr-content-wrap { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  
   .vr-header { background: #fff; border-bottom: 1px solid #e2e6ea; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
   .vr-header-left { display: flex; align-items: center; gap: 16px; }
   .vr-back-btn { background: none; border: none; cursor: pointer; color: #01233F; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; transition: opacity 0.15s; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
   .vr-back-btn:hover { opacity: 0.6; }
   .vr-title { font-size: 16px; font-weight: 900; color: #01233F; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
   
-  .vr-main { padding: 32px 40px; }
+  .vr-main { padding: 32px 40px; flex: 1; }
   .vr-grid { display: grid; grid-template-columns: 1fr 360px; gap: 48; margin-bottom: 24px; }
   
-  .vr-map-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e8e8e8; }
+  .vr-map-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e8e8e8; position: relative; }
   .vr-map-container { width: 100%; height: 600px; }
+  .vr-map-label { position: absolute; top: 12px; right: 12px; background: #f1bb13; color: #01233F; padding: 8px 12px; border-radius: 4px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; z-index: 10; }
   
   .vr-details-card { background: #fff; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e8e8e8; height: fit-content; }
   .vr-details-title { font-size: 14px; font-weight: 900; color: #01233F; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
@@ -74,6 +147,8 @@ const css = `
   .vr-info-box { background: #f0f8ff; border-left: 4px solid #f1bb13; padding: 14px; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.5; margin-top: 16px; }
   
   @media (max-width: 1024px) {
+    .vr-sidebar { width: 180px; }
+    .vr-content-wrap { margin-left: 180px; }
     .vr-grid { grid-template-columns: 1fr; }
     .vr-details-card { height: auto; }
     .vr-main { padding: 20px 16px; }
@@ -280,95 +355,140 @@ export default function VisualizarRotaPage() {
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className="vr-page">
         
-        {/* Header */}
-        <header className="vr-header">
-          <div className="vr-header-left">
-            <button className="vr-back-btn" onClick={() => router.push("/lista_rotas")}>
-              <BackIcon />
-              VOLTAR
-            </button>
-          </div>
-        </header>
-
-        {/* Conteúdo */}
-        <main className="vr-main">
-          <div className="vr-grid">
-            {/* Mapa */}
-            <div className="vr-map-card">
-              <div ref={mapRef} className="vr-map-container" style={{ display: loading || error ? 'none' : 'block' }} />
-              {loading && (
-                <div className="vr-loading">
-                  <p>⏳ Carregando mapa...</p>
-                </div>
-              )}
-              {error && !loading && (
-                <div style={{ padding: '32px 20px' }}>
-                  <div className="vr-error">{error}</div>
-                </div>
-              )}
+        {/* SIDEBAR */}
+        <aside className="vr-sidebar">
+          <div className="vr-sidebar-logo">
+            <div className="vr-logo-icon"><BusIcon size={18} /></div>
+            <div>
+              <div className="vr-logo-text">Omnibus</div>
+              <div className="vr-logo-sub">Gestão Escolar</div>
             </div>
+          </div>
+          
+          <nav className="vr-sidebar-nav">
+            <div className="vr-nav-label">Principal</div>
+            <button className="vr-nav-item" onClick={() => router.push("/dashboard")} title="Dashboard">
+              <DashboardIcon size={17} /> Dashboard
+            </button>
+            <button className="vr-nav-item" onClick={() => router.push("/visualizar_gastos")} title="Financeiro">
+              <FinanceIcon size={17} /> Financeiro
+            </button>
 
-            {/* Detalhes */}
-            <div className="vr-details-card">
-              <div className="vr-details-title">
-                <CheckCircleIcon />
-                DETALHES DA ROTA
+            <div className="vr-nav-label">Cadastros</div>
+            <button className="vr-nav-item" onClick={() => router.push("/lista_onibus")} title="Ônibus">
+              <BusIcon size={17} /> Ônibus
+            </button>
+            <button className="vr-nav-item active" onClick={() => router.push("/lista_rotas")} title="Rotas">
+              <RouteIcon size={17} /> Rotas
+            </button>
+            <button className="vr-nav-item" onClick={() => router.push("/lista_motoristas")} title="Motoristas">
+              <DriverIcon size={17} /> Motoristas
+            </button>
+            <button className="vr-nav-item" onClick={() => router.push("/lista_escolas")} title="Escolas">
+              <SchoolIcon size={17} /> Escolas
+            </button>
+          </nav>
+
+          <div className="vr-sidebar-footer">
+            <SidebarLogoutButton />
+          </div>
+        </aside>
+        
+        {/* CONTENT WRAPPER */}
+        <div className="vr-content-wrap">
+          {/* Header */}
+          <header className="vr-header">
+            <div className="vr-header-left">
+              <button className="vr-back-btn" onClick={() => router.push("/lista_rotas")}>
+                <BackIcon />
+                VOLTAR
+              </button>
+            </div>
+          </header>
+
+          {/* Conteúdo */}
+          <main className="vr-main">
+            <div className="vr-grid">
+              {/* Mapa */}
+              <div className="vr-map-card">
+                <div ref={mapRef} className="vr-map-container" style={{ display: loading || error ? 'none' : 'block' }} />
+                {!loading && !error && distance !== null && (
+                  <div className="vr-map-label">📏 {distance} km</div>
+                )}
+                {loading && (
+                  <div className="vr-loading">
+                    <p>⏳ Carregando mapa...</p>
+                  </div>
+                )}
+                {error && !loading && (
+                  <div style={{ padding: '32px 20px' }}>
+                    <div className="vr-error">{error}</div>
+                  </div>
+                )}
               </div>
 
-              {loading ? (
-                <p style={{ color: '#6b7a8d', fontSize: '13px' }}>Carregando detalhes...</p>
-              ) : error ? (
-                null
-              ) : (
-                <>
-                  <div className="vr-detail-item">
-                    <div className="vr-detail-icon">A</div>
-                    <div className="vr-detail-content">
-                      <div className="vr-detail-label">Ponto de Saída</div>
-                      <div className="vr-detail-value">{startLabel}</div>
-                    </div>
-                  </div>
+              {/* Detalhes */}
+              <div className="vr-details-card">
+                <div className="vr-details-title">
+                  <CheckCircleIcon />
+                  DETALHES DA ROTA
+                </div>
 
-                  <div className="vr-detail-item">
-                    <div className="vr-detail-icon">B</div>
-                    <div className="vr-detail-content">
-                      <div className="vr-detail-label">Ponto de Chegada</div>
-                      <div className="vr-detail-value">{endLabel}</div>
-                    </div>
-                  </div>
-
-                  {distance !== null && (
+                {loading ? (
+                  <p style={{ color: '#6b7a8d', fontSize: '13px' }}>Carregando detalhes...</p>
+                ) : error ? (
+                  null
+                ) : (
+                  <>
                     <div className="vr-detail-item">
-                      <div className="vr-detail-icon">
-                        <MapPinIcon style={{ fontSize: '16px' }} />
-                      </div>
+                      <div className="vr-detail-icon">A</div>
                       <div className="vr-detail-content">
-                        <div className="vr-detail-label">Distância</div>
-                        <div className="vr-detail-value">{distance} km</div>
+                        <div className="vr-detail-label">Ponto de Saída</div>
+                        <div className="vr-detail-value">{startLabel}</div>
                       </div>
                     </div>
-                  )}
 
-                  {duration !== null && (
                     <div className="vr-detail-item">
-                      <div className="vr-detail-icon">
-                        <ClockIcon style={{ fontSize: '16px' }} />
-                      </div>
+                      <div className="vr-detail-icon">B</div>
                       <div className="vr-detail-content">
-                        <div className="vr-detail-label">Tempo Sugerido</div>
-                        <div className="vr-detail-value">{duration} min</div>
+                        <div className="vr-detail-label">Ponto de Chegada</div>
+                        <div className="vr-detail-value">{endLabel}</div>
                       </div>
                     </div>
-                  )}
 
-                  <div className="vr-info-box">
-                    📍 A linha tracejada representa o percurso sugerido entre os pontos. As coordenadas são calculadas automaticamente.
-                  </div>
-                </>
-              )}
+                    {distance !== null && (
+                      <div className="vr-detail-item">
+                        <div className="vr-detail-icon">
+                          <MapPinIcon />
+                        </div>
+                        <div className="vr-detail-content">
+                          <div className="vr-detail-label">Distância</div>
+                          <div className="vr-detail-value">{distance} km</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {duration !== null && (
+                      <div className="vr-detail-item">
+                        <div className="vr-detail-icon">
+                          <ClockIcon />
+                        </div>
+                        <div className="vr-detail-content">
+                          <div className="vr-detail-label">Tempo Sugerido</div>
+                          <div className="vr-detail-value">{duration} min</div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="vr-info-box">
+                      📍 A linha tracejada representa o percurso sugerido entre os pontos. As coordenadas são calculadas automaticamente.
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
 
       </div>
     </>
