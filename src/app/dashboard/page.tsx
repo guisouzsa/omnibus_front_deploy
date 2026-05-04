@@ -3,10 +3,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useExpenses, useSpendingLimits } from "@/hooks";
-import { notificationsService } from "@/services";
+import { notificationsService, routesService } from "@/services";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 import {
-  AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  AreaChart, Area, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { Notification } from "@/types/api";
 
@@ -17,6 +17,12 @@ const chartData = [
   { mes: "Jul", valor: 215000 }, { mes: "Ago", valor: 240000 },
   { mes: "Set", valor: 225000 }, { mes: "Out", valor: 210000 },
   { mes: "Nov", valor: 220000 }, { mes: "Dez", valor: 130000 },
+];
+
+const kmChartData = [
+  { rota: "Rota A", km: 1250, fill: "#01233F" }, { rota: "Rota B", km: 1180, fill: "#f1bb13" },
+  { rota: "Rota C", km: 1420, fill: "#01233F" }, { rota: "Rota D", km: 1350, fill: "#f1bb13" },
+  { rota: "Rota E", km: 1280, fill: "#01233F" }, { rota: "Rota F", km: 1520, fill: "#f1bb13" },
 ];
 
 const defaultChartData = chartData;
@@ -210,6 +216,7 @@ const css = `
   .db-quick-label { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
   .db-quick-desc { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
 
+  .db-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .db-chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; }
   .db-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .db-card-title { font-size: 14px; font-weight: 700; color: var(--text); }
@@ -237,6 +244,7 @@ const css = `
   .db-btn-primary:hover { background: var(--yellow-dark); }
 
   @media (max-width: 1200px) {
+    .db-charts-row { grid-template-columns: 1fr; }
     .db-quick-grid { grid-template-columns: repeat(2, 1fr); }
     .db-bottom-row { grid-template-columns: 1fr 1fr; }
   }
@@ -254,6 +262,18 @@ function CustomTooltip({ active, payload, label }: any) {
       <div style={{ background: "#01233F", color: "#fff", fontSize: 12, padding: "8px 12px", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}>
         <p style={{ fontWeight: 700, marginBottom: 2 }}>{label}</p>
         <p>R$ {payload[0].value.toLocaleString("pt-BR")}</p>
+      </div>
+    );
+  }
+  return null;
+}
+
+function CustomTooltipKm({ active, payload, label }: any) {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{ background: "#01233F", color: "#fff", fontSize: 12, padding: "8px 12px", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}>
+        <p style={{ fontWeight: 700, marginBottom: 2 }}>{label}</p>
+        <p>{payload[0].value} km</p>
       </div>
     );
   }
@@ -288,12 +308,39 @@ export default function DashboardPage() {
   const [activeNav, setActiveNav] = useState("dashboard");
   const [recentNotifications, setRecentNotifications] = useState<Notification[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [distanceChartData, setDistanceChartData] = useState(kmChartData);
 
   useEffect(() => { fetchExpenses({ per_page: 1000 }); }, []);
 
   useEffect(() => {
     loadRecentNotifications();
   }, []);
+
+  useEffect(() => {
+    loadDistanceChartData();
+  }, []);
+
+  const loadDistanceChartData = async () => {
+    try {
+      const response = await routesService.getDistanceChart();
+      const data = response?.data || [];
+      
+      if (data.length > 0) {
+        // Mapear dados da API para o formato esperado pelo gráfico
+        const formattedData = data.map((item: any, idx: number) => ({
+          rota: item.rota,
+          km: item.km,
+          fill: idx % 2 === 0 ? "#01233F" : "#f1bb13",
+        }));
+        setDistanceChartData(formattedData);
+      } else {
+        setDistanceChartData(kmChartData);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar dados de quilometragem:", err);
+      setDistanceChartData(kmChartData);
+    }
+  };
 
   const loadRecentNotifications = async () => {
     try {
@@ -442,29 +489,50 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="db-chart-card">
-              <div className="db-card-header">
-                <span className="db-card-title">Gráfico de Gastos</span>
-                <span className="db-card-badge">{new Date().getFullYear()}</span>
+            <div className="db-charts-row">
+              <div className="db-chart-card">
+                <div className="db-card-header">
+                  <span className="db-card-title">Gráfico de Gastos</span>
+                  <span className="db-card-badge">{new Date().getFullYear()}</span>
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <AreaChart data={dynamicChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#01233F" stopOpacity={0.15} />
+                        <stop offset="95%" stopColor="#01233F" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#9ca3af", fontFamily: "DM Sans" }} axisLine={false} tickLine={false} />
+                    <YAxis hide />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area type="monotone" dataKey="valor" stroke="#01233F" strokeWidth={2.5}
+                      fill="url(#colorValor)"
+                      dot={{ r: 3, fill: "#01233F", strokeWidth: 0 }}
+                      activeDot={{ r: 5, fill: "#f1bb13", strokeWidth: 2, stroke: "#fff" }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={dynamicChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#01233F" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#01233F" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#9ca3af", fontFamily: "DM Sans" }} axisLine={false} tickLine={false} />
-                  <YAxis hide />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="valor" stroke="#01233F" strokeWidth={2.5}
-                    fill="url(#colorValor)"
-                    dot={{ r: 3, fill: "#01233F", strokeWidth: 0 }}
-                    activeDot={{ r: 5, fill: "#f1bb13", strokeWidth: 2, stroke: "#fff" }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+
+              <div className="db-chart-card">
+                <div className="db-card-header">
+                  <span className="db-card-title">Quilometragem por Rota</span>
+                  <span className="db-card-badge">{new Date().getFullYear()}</span>
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={distanceChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="rota" tick={{ fontSize: 11, fill: "#9ca3af", fontFamily: "DM Sans" }} axisLine={false} tickLine={false} />
+                    <YAxis hide />
+                    <Tooltip content={<CustomTooltipKm />} />
+                    <Bar dataKey="km" radius={[6, 6, 0, 0]}>
+                      {distanceChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
             <div className="db-bottom-row">

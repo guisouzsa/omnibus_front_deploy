@@ -48,6 +48,10 @@ class RoutesService {
   async delete(id: number): Promise<ApiResponse> {
     return apiClient.delete(`/api/routes/${id}`);
   }
+
+  async getDistanceChart(): Promise<any> {
+    return apiClient.get('/api/routes-distance-chart');
+  }
 }
 
 export const routesService = new RoutesService();
