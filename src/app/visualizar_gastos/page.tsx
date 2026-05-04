@@ -98,6 +98,15 @@ function CloseIcon() {
     </svg>
   );
 }
+function DownloadPdfIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+  );
+}
 
 // ─── CSS ──────────────────────────────────────────────────────────────────────
 const css = `
@@ -154,8 +163,8 @@ const css = `
   /* MAIN */
   .oc-main { padding: 32px 40px; }
   .oc-content { width: 100%; }
-  .oc-top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; width: 100%; }
-  .oc-title { font-size: 16px; font-weight: 900; color: #1a1a1a; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; margin: 0; }
+  .oc-top-bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; margin-bottom: 20px; width: 100%; }
+  .oc-title { font-size: 16px; font-weight: 900; color: #1a1a1a; letter-spacing: 1px; text-transform: uppercase; text-align: center; margin: 0; grid-column: 2; }
   .oc-btn-wrap { position: relative; flex-shrink: 0; }
   .oc-btn-meta { background: #f1bb13; border: none; border-radius: 4px; padding: 0 22px; height: 38px; font-size: 13px; font-weight: 900; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: background 0.15s; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
   .oc-btn-meta:hover { background: #dba900; }
@@ -240,10 +249,14 @@ const css = `
   .oc-modal { background: #fff; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 900px; width: 90%; max-height: 85vh; display: flex; flex-direction: column; }
   .oc-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e8e8e8; }
   .oc-modal-title { font-size: 16px; font-weight: 800; color: #01233F; }
+  .oc-modal-header-actions { display: flex; align-items: center; gap: 12px; }
+  .oc-modal-download { background: #f1bb13; border: none; border-radius: 4px; padding: 8px 16px; font-size: 12px; font-weight: 800; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; text-transform: uppercase; }
+  .oc-modal-download:hover { background: #dba900; }
   .oc-modal-close { background: none; border: none; cursor: pointer; padding: 0; color: #6b7a8d; transition: color 0.15s; }
   .oc-modal-close:hover { color: #01233F; }
-  .oc-modal-body { flex: 1; overflow-y: auto; padding: 24px; }
+  .oc-modal-body { flex: 1; overflow-y: auto; padding: 24px; display: flex; align-items: center; justify-content: center; }
   .oc-modal-iframe { width: 100%; height: 600px; border: none; border-radius: 4px; }
+  .oc-modal-image { max-width: 100%; max-height: 100%; border-radius: 4px; object-fit: contain; }
   .oc-modal-empty { text-align: center; color: #999; font-size: 14px; }
 
   @media (max-width: 900px) {
@@ -292,6 +305,15 @@ function getLimitAmount(limit: { limit_amount?: number | string; limit_value?: n
   return 0;
 }
 
+function downloadFile(url: string, filename?: string) {
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename || url.split("/").pop() || "comprovante";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function VisualizarGastosPage() {
   const router = useRouter();
@@ -316,7 +338,7 @@ export default function VisualizarGastosPage() {
   const [saveError, setSaveError]       = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess]   = useState(false);
 
-  const [proofModal, setProofModal]     = useState<string | null>(null);
+  const [proofModal, setProofModal]     = useState<{ url: string; filename?: string } | null>(null);
 
   const metaRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -560,37 +582,13 @@ export default function VisualizarGastosPage() {
 
               <div className="oc-top-bar">
 
-                {/* VER META */}
-                <div className="oc-btn-wrap" ref={metaRef}>
-                  <button className="oc-btn-meta" onClick={handleOpenMeta}>
-                    VER META DE GASTOS
-                  </button>
-                  {showMeta && (
-                    <div className="oc-popover">
-                      <p className="oc-popover-label">Meta de gastos</p>
-                      {metaLoading ? (
-                        <p className="oc-meta-loading">Carregando...</p>
-                      ) : metaError ? (
-                        <p className="oc-popover-msg oc-popover-error">{metaError}</p>
-                      ) : meta !== null ? (
-                        <div className="oc-meta-display">
-                          <p className="oc-meta-display-value">{formatBRL(meta)}</p>
-                          <p className="oc-meta-display-sub">por mês</p>
-                        </div>
-                      ) : null}
-                    </div>
-                  )}
-                </div>
-
-                <h2 className="oc-title">GASTOS CADASTRADOS</h2>
-
-                {/* CADASTRAR/EDITAR META */}
+                {/* CADASTRAR/EDITAR META - À ESQUERDA */}
                 <div className="oc-btn-wrap" ref={formRef}>
                   <button className="oc-btn-cadastrar" onClick={handleOpenForm}>
-                    {meta ? "EDITAR META DE GASTOS" : "CADASTRAR META DE GASTOS"}
+                    {meta ? "EDITAR META" : "CADASTRAR META"}
                   </button>
                   {showForm && (
-                    <div className="oc-popover oc-popover-right">
+                    <div className="oc-popover">
                       <p className="oc-popover-label">
                         <ArrowIcon />
                         VALOR (POR MÊS)
@@ -615,6 +613,31 @@ export default function VisualizarGastosPage() {
                       )}
                       {saveError   && <p className="oc-popover-msg oc-popover-error">{saveError}</p>}
                       {saveSuccess && <p className="oc-popover-msg oc-popover-success">Meta salva com sucesso!</p>}
+                    </div>
+                  )}
+                </div>
+
+                {/* TÍTULO NO CENTRO */}
+                <h2 className="oc-title">GASTOS CADASTRADOS</h2>
+
+                {/* VER META - À DIREITA */}
+                <div className="oc-btn-wrap" ref={metaRef}>
+                  <button className="oc-btn-meta" onClick={handleOpenMeta}>
+                    VER META
+                  </button>
+                  {showMeta && (
+                    <div className="oc-popover oc-popover-right">
+                      <p className="oc-popover-label">Meta de gastos</p>
+                      {metaLoading ? (
+                        <p className="oc-meta-loading">Carregando...</p>
+                      ) : metaError ? (
+                        <p className="oc-popover-msg oc-popover-error">{metaError}</p>
+                      ) : meta !== null ? (
+                        <div className="oc-meta-display">
+                          <p className="oc-meta-display-value">{formatBRL(meta)}</p>
+                          <p className="oc-meta-display-sub">por mês</p>
+                        </div>
+                      ) : null}
                     </div>
                   )}
                 </div>
@@ -676,7 +699,10 @@ export default function VisualizarGastosPage() {
                           <td className="oc-td-value">{formatBRL(e.value)}</td>
                           <td>
                             {e.proof_of_payment ? (
-                              <button className="oc-btn-download" onClick={() => setProofModal(getProofUrl(e.proof_of_payment) || "")}>
+                              <button className="oc-btn-download" onClick={() => {
+                                const url = getProofUrl(e.proof_of_payment);
+                                if (url) setProofModal({ url, filename: `comprovante-${e.vehicle_plate}` });
+                              }}>
                                 <DownloadIcon />
                                 Visualizar comprovante
                               </button>
@@ -703,17 +729,41 @@ export default function VisualizarGastosPage() {
           <div className="oc-modal" onClick={(e) => e.stopPropagation()}>
             <div className="oc-modal-header">
               <h3 className="oc-modal-title">Comprovante de Pagamento</h3>
-              <button className="oc-modal-close" onClick={() => setProofModal(null)}>
-                <CloseIcon />
-              </button>
+              <div className="oc-modal-header-actions">
+                <button 
+                  className="oc-modal-download" 
+                  onClick={() => {
+                    if (proofModal.url) {
+                      downloadFile(proofModal.url, proofModal.filename);
+                    }
+                  }}
+                  title="Baixar comprovante"
+                >
+                  <DownloadPdfIcon />
+                  BAIXAR
+                </button>
+                <button className="oc-modal-close" onClick={() => setProofModal(null)}>
+                  <CloseIcon />
+                </button>
+              </div>
             </div>
             <div className="oc-modal-body">
-              {proofModal.startsWith("data:") || proofModal.includes(".pdf") ? (
-                <iframe src={proofModal} className="oc-modal-iframe" title="Comprovante" />
-              ) : proofModal.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                <img src={proofModal} style={{ maxWidth: "100%", borderRadius: "4px" }} alt="Comprovante" />
+              {proofModal.url ? (
+                proofModal.url.endsWith(".pdf") ? (
+                  <iframe src={proofModal.url} className="oc-modal-iframe" title="Comprovante PDF" />
+                ) : proofModal.url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                  <img src={proofModal.url} className="oc-modal-image" alt="Comprovante" />
+                ) : proofModal.url.startsWith("data:") ? (
+                  proofModal.url.startsWith("data:image") ? (
+                    <img src={proofModal.url} className="oc-modal-image" alt="Comprovante" />
+                  ) : (
+                    <iframe src={proofModal.url} className="oc-modal-iframe" title="Comprovante" />
+                  )
+                ) : (
+                  <iframe src={proofModal.url} className="oc-modal-iframe" title="Comprovante" />
+                )
               ) : (
-                <iframe src={proofModal} className="oc-modal-iframe" title="Comprovante" />
+                <div className="oc-modal-empty">Erro ao carregar comprovante</div>
               )}
             </div>
           </div>

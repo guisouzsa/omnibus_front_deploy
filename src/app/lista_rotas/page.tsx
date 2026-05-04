@@ -145,7 +145,7 @@ export default function ListaRotasPage() {
             </button>
           </nav>
           <div className="oc-sidebar-footer">
-            <button className="oc-user-row" onClick={() => router.push("/infor_instituicao")}>
+            <button className="oc-user-row" onClick={() => router.push("/perfil")}>
               <div className="oc-avatar">A</div>
               <div><div className="oc-user-name">Admin</div><div className="oc-user-role">Gestor</div></div>
             </button>
@@ -168,7 +168,7 @@ export default function ListaRotasPage() {
                 </svg>
                 <span className="oc-notif-dot" />
               </button>
-              <button className="oc-icon-btn" onClick={() => router.push("/infor_instituicao")}>
+              <button className="oc-icon-btn" onClick={() => router.push("/perfil")}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                   <circle cx="12" cy="7" r="4"/>
