@@ -300,7 +300,7 @@ export default function PerfilPage() {
                         console.log("Tentando carregar foto com URL:", photoUrl);
                         return (
                           <img 
-                            src={photoUrl} 
+                            src={photoUrl ?? undefined} 
                             alt="avatar"
                             onError={(e) => {
                               console.error("Erro ao carregar foto da URL:", photoUrl, e);

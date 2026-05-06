@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSchools } from "@/hooks/useSchools";
 import { useRoutes } from "@/hooks/useRoutes";
@@ -93,7 +93,7 @@ const css = `
   }
 `;
 
-export default function EditarEscolaPage() {
+function EditarEscolaContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const schoolId = searchParams.get('id');
@@ -282,5 +282,13 @@ export default function EditarEscolaPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function EditarEscolaPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>Carregando...</div>}>
+      <EditarEscolaContent />
+    </Suspense>
   );
 }
