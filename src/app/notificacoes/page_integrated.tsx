@@ -338,6 +338,13 @@ export default function NotificacoesPage() {
                       <div className="notif-content">
                         <span className="notif-title">{n.title}</span>
                         <span className="notif-desc">{n.message}</span>
+                        {(n.route?.name || n.driver?.name) && (
+                          <span className="notif-meta">
+                            {[n.route?.name && `Rota: ${n.route.name}`, n.driver?.name && `Motorista: ${n.driver.name}`]
+                              .filter(Boolean)
+                              .join(' | ')}
+                          </span>
+                        )}
                       </div>
                       {/* lupa removida */}
                       <div className="notif-date">{formatDate(n.created_at)}</div>
@@ -404,9 +411,10 @@ export default function NotificacoesPage() {
         .checkbox { width: 16px; height: 16px; border: 1.5px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background 0.15s, border-color 0.15s; }
         .checkbox.checked { background: #01233F; border-color: #01233F; }
         .notif-icon-cell { flex-shrink: 0; width: 28px; text-align: center; font-size: 16px; }
-        .notif-content { flex: 1; display: flex; align-items: center; gap: 16px; min-width: 0; }
-        .notif-title { font-size: 12px; font-weight: 800; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; flex-shrink: 0; }
-        .notif-desc { font-size: 12px; font-weight: 500; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .notif-content { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .notif-title { font-size: 12px; font-weight: 800; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.3px; white-space: normal; }
+        .notif-desc { font-size: 12px; font-weight: 500; color: #555; white-space: normal; line-height: 1.35; }
+        .notif-meta { font-size: 11px; font-weight: 600; color: #8a8a8a; white-space: normal; }
         .notif-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
         .action-icon { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 4px; transition: background 0.15s; padding: 0; }
         .action-icon:hover { background: #f0f0f0; }
@@ -417,7 +425,8 @@ export default function NotificacoesPage() {
           .content-wrap { margin-left: 0; }
           .main { padding: 20px 16px; }
           .notif-title { white-space: normal; }
-          .notif-desc { display: none; }
+          .notif-desc { display: block; }
+          .notif-meta { display: block; }
           .toolbar { padding: 10px 14px; }
           .notif-row { padding: 10px 14px; }
         }
