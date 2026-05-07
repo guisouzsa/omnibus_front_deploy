@@ -42,7 +42,6 @@ const css = `
   .p-btn-edit:hover { background: #dba900; }
   .p-form-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
   .p-form-group { display: flex; flex-direction: column; }
-  .p-form-group.full { grid-column: 1 / -1; }
   .p-label { font-size: 13px; font-weight: 900; color: #01233F; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; }
   .p-input { border: 1px solid #e0e0e0; background: #f9f9f9; padding: 14px 14px; border-radius: 4px; font-size: 15px; color: #1a1a1a; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; font-weight: 500; }
   .p-input:focus { outline: none; background: #fff; border: 2px solid #f1bb13; color: #01233F; }
@@ -58,20 +57,11 @@ const css = `
   }
 `;
 
-// FIX: Normaliza a resposta do Laravel que retorna { message, data: user }
-// O backend retorna sempre { message: '...', data: { id, name, email, ... } }
-const normalizeUser = (resp: any) => {
-  return resp?.data ?? resp?.user ?? resp?.data?.user ?? resp;
-};
+const normalizeUser = (resp: any) => resp?.data ?? resp?.user ?? resp;
 
-// FIX: Monta a URL completa da foto
-// Se já for URL completa (Cloudinary, S3, etc), usa direto
-// Se for caminho relativo do Laravel storage, monta com a base da API
 const getPhotoUrl = (photoPath: string | null): string | null => {
   if (!photoPath) return null;
-  if (photoPath.startsWith("http://") || photoPath.startsWith("https://")) {
-    return photoPath; // URL completa (Cloudinary, S3, etc)
-  }
+  if (photoPath.startsWith("http://") || photoPath.startsWith("https://")) return photoPath;
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const pathWithSlash = photoPath.startsWith("/") ? photoPath : "/" + photoPath;
   return `${apiBaseUrl}${pathWithSlash}?t=${Date.now()}`;
@@ -86,9 +76,7 @@ export default function PerfilPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [imageError, setImageError] = useState(false);
-
-  // FIX: Inclui o campo "name" que faltava antes
-  const [form, setForm] = useState({ name: "", institution: "", email: "" });
+  const [form, setForm] = useState({ institution: "", email: "" });
 
   useEffect(() => {
     async function load() {
@@ -97,15 +85,12 @@ export default function PerfilPage() {
         const userData = normalizeUser(resp);
         setUser(userData);
         setImageError(false);
-        // FIX: Popula "name" junto com os outros campos
         setForm({
-          name: userData.name || "",
           institution: userData.institution || "",
           email: userData.email || "",
         });
       } catch (err) {
         console.error("Erro ao carregar user:", err);
-        // Se deu erro aqui, o api-client já cuidou do redirect em caso de 401
       } finally {
         setLoading(false);
       }
@@ -126,19 +111,15 @@ export default function PerfilPage() {
     try {
       const fd = new FormData();
       fd.append("_method", "PATCH");
-      // FIX: Envia "name" para o backend salvar no banco
-      fd.append("name", form.name);
-      fd.append("institution", form.institution);
-      fd.append("email", form.email);
+      if (form.institution) fd.append("institution", form.institution);
+      if (form.email) fd.append("email", form.email);
       if (file) fd.append("profile_photo", file);
 
       const resp = await apiClient.post("/api/user/profile", fd, { isFormData: true });
       const updatedUser = normalizeUser(resp);
 
       setUser(updatedUser);
-      // FIX: Atualiza "name" após salvar
       setForm({
-        name: updatedUser.name || "",
         institution: updatedUser.institution || "",
         email: updatedUser.email || "",
       });
@@ -148,10 +129,8 @@ export default function PerfilPage() {
       setFile(null);
       setEditing(false);
       setImageError(false);
-
       alert("Perfil atualizado com sucesso!");
     } catch (err: any) {
-      console.error("Erro ao salvar perfil:", err);
       alert(err?.message || "Erro ao salvar perfil");
     } finally {
       setSaving(false);
@@ -165,16 +144,13 @@ export default function PerfilPage() {
     setFile(null);
     setImageError(false);
     setForm({
-      name: user?.name || "",
       institution: user?.institution || "",
       email: user?.email || "",
     });
   };
 
   const photoUrl = previewUrl ?? (user?.profile_photo ? getPhotoUrl(user.profile_photo) : null);
-
-  // Pega a primeira letra do nome para o avatar da sidebar
-  const avatarLetter = user?.name?.[0]?.toUpperCase() || "A";
+  const avatarLetter = user?.institution?.[0]?.toUpperCase() || user?.name?.[0]?.toUpperCase() || "A";
 
   if (loading) {
     return (
@@ -252,11 +228,10 @@ export default function PerfilPage() {
             </button>
           </nav>
           <div className="p-sidebar-footer">
-            {/* FIX: Sidebar agora exibe o nome e letra real do usuário logado */}
             <button className="p-user-row" style={{ cursor: "default" }}>
               <div className="p-avatar">{avatarLetter}</div>
               <div>
-                <div className="p-user-name">{user?.name || "Usuário"}</div>
+                <div className="p-user-name">{user?.institution || user?.name || "Usuário"}</div>
                 <div className="p-user-role">Gestor</div>
               </div>
             </button>
@@ -299,22 +274,13 @@ export default function PerfilPage() {
                   </div>
 
                   {!editing ? (
-                    <button className="p-btn-edit" onClick={() => setEditing(true)}>
-                      Editar
-                    </button>
+                    <button className="p-btn-edit" onClick={() => setEditing(true)}>Editar</button>
                   ) : (
                     <>
-                      <button
-                        className="p-btn-edit"
-                        onClick={() => document.getElementById("file-input")?.click()}
-                      >
+                      <button className="p-btn-edit" onClick={() => document.getElementById("file-input")?.click()}>
                         Selecionar Foto
                       </button>
-                      <button
-                        className="p-btn-edit"
-                        style={{ background: "#6b7a8d" }}
-                        onClick={handleCancelEdit}
-                      >
+                      <button className="p-btn-edit" style={{ background: "#6b7a8d" }} onClick={handleCancelEdit}>
                         Cancelar
                       </button>
                     </>
@@ -331,17 +297,6 @@ export default function PerfilPage() {
 
                 <div style={{ flex: 1 }}>
                   <div className="p-form-grid">
-                    {/* FIX: Campo "Nome" adicionado — era o que faltava para salvar no banco */}
-                    <div className="p-form-group">
-                      <label className="p-label">Nome</label>
-                      <input
-                        type="text"
-                        className="p-input"
-                        value={form.name}
-                        onChange={(e) => setForm({ ...form, name: e.target.value })}
-                        disabled={!editing}
-                      />
-                    </div>
                     <div className="p-form-group">
                       <label className="p-label">Instituição</label>
                       <input
