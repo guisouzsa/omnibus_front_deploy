@@ -36,10 +36,15 @@ class ApiClient {
     }
 
     if (!response.ok) {
+      // FIX: Só redireciona pro login se NÃO estiver já na página de login
+      // Isso evita o loop infinito de redirecionamento
       if (response.status === 401) {
         this.removeToken();
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          const isAlreadyOnLogin = window.location.pathname.includes('/login');
+          if (!isAlreadyOnLogin) {
+            window.location.href = '/login';
+          }
         }
       }
 
@@ -56,7 +61,7 @@ class ApiClient {
 
   private buildQueryString(params?: QueryParams): string {
     if (!params) return '';
-    
+
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -77,7 +82,6 @@ class ApiClient {
   private async executeFetch(url: string, init: RequestInit): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
-    
 
     try {
       return await fetch(url, {
@@ -88,7 +92,7 @@ class ApiClient {
       const isTimeout = error?.name === 'AbortError';
       const networkError: any = new Error(
         isTimeout
-          ? 'Não foi possível conectar à API (tempo limite excedido). Verifique se o backend está rodando em http://localhost:8000.'
+          ? 'Não foi possível conectar à API (tempo limite excedido). Verifique se o backend está rodando.'
           : 'Não foi possível conectar à API. Verifique se o backend está rodando e se a URL está correta.'
       );
 
@@ -105,10 +109,7 @@ class ApiClient {
     }
   }
 
-  public async get<T = any>(
-    endpoint: string,
-    params?: QueryParams
-  ): Promise<T> {
+  public async get<T = any>(endpoint: string, params?: QueryParams): Promise<T> {
     const token = this.getToken();
     const queryString = this.buildQueryString(params);
     const url = this.buildURL(endpoint, queryString);
@@ -117,7 +118,7 @@ class ApiClient {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       credentials: 'include',
@@ -135,7 +136,7 @@ class ApiClient {
     const isFormData = options?.isFormData || body instanceof FormData;
 
     const headers: HeadersInit = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
     };
 
@@ -155,10 +156,7 @@ class ApiClient {
     return this.handleResponse<T>(response);
   }
 
-  public async put<T = any>(
-    endpoint: string,
-    body?: any
-  ): Promise<T> {
+  public async put<T = any>(endpoint: string, body?: any): Promise<T> {
     const token = this.getToken();
     const url = this.buildURL(endpoint);
 
@@ -166,7 +164,7 @@ class ApiClient {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: JSON.stringify(body),
@@ -185,7 +183,7 @@ class ApiClient {
     const isFormData = options?.isFormData || body instanceof FormData;
 
     const headers: HeadersInit = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
     };
 
@@ -213,7 +211,7 @@ class ApiClient {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       credentials: 'include',
@@ -234,9 +232,22 @@ class ApiClient {
     return response;
   }
 
-  // Método para verificar se está autenticado
+  // Método para verificar se está autenticado localmente (só checa localStorage)
   public isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  // FIX: Novo método que valida o token com o backend de verdade
+  // Use este na página de login para evitar redirect com token expirado
+  public async validateToken(): Promise<boolean> {
+    if (!this.getToken()) return false;
+    try {
+      await this.get('/api/user');
+      return true;
+    } catch {
+      this.removeToken();
+      return false;
+    }
   }
 }
 
