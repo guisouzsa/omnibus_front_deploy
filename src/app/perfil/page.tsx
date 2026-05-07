@@ -64,25 +64,37 @@ export default function PerfilPage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [form, setForm] = useState({ institution: "", email: "" });
 
-  const getPhotoUrl = (photoPath: string | null) => {
+  // Monta a URL completa da foto a partir do caminho retornado pelo backend
+  const getPhotoUrl = (photoPath: string | null): string | null => {
     if (!photoPath) return null;
     if (photoPath.startsWith("http://") || photoPath.startsWith("https://")) return photoPath;
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     const pathWithSlash = photoPath.startsWith("/") ? photoPath : "/" + photoPath;
-    return `${apiBaseUrl}${pathWithSlash}`;
+    // Adiciona timestamp para evitar cache do browser após atualização
+    return `${apiBaseUrl}${pathWithSlash}?t=${Date.now()}`;
+  };
+
+  // Normaliza a resposta da API independente do shape retornado
+  const normalizeUser = (resp: any) => {
+    return resp?.user ?? resp?.data?.user ?? resp?.data ?? resp;
   };
 
   useEffect(() => {
     async function load() {
       try {
         const resp = await apiClient.get("/api/user");
-        setUser(resp);
+        const userData = normalizeUser(resp);
+        setUser(userData);
         setImageError(false);
-        setForm({ institution: resp.institution || "", email: resp.email || "" });
+        setForm({
+          institution: userData.institution || "",
+          email: userData.email || "",
+        });
       } catch (err) {
         console.error("Erro ao carregar user:", err);
       } finally {
@@ -92,26 +104,66 @@ export default function PerfilPage() {
     load();
   }, []);
 
+  // Gera preview local quando o usuário seleciona um arquivo
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0] ?? null;
+    setFile(selected);
+    if (previewUrl) URL.revokeObjectURL(previewUrl); // libera URL anterior
+    setPreviewUrl(selected ? URL.createObjectURL(selected) : null);
+    setImageError(false);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
       const fd = new FormData();
       fd.append("_method", "PATCH");
-      if (form.institution) fd.append("institution", form.institution);
-      if (form.email) fd.append("email", form.email);
+      fd.append("institution", form.institution);
+      fd.append("email", form.email);
       if (file) fd.append("profile_photo", file);
+
       const resp = await apiClient.post("/api/user/profile", fd, { isFormData: true });
-      setUser(resp.data || resp);
-      setEditing(false);
+
+      // Normaliza resposta independente do shape da API
+      const updatedUser = normalizeUser(resp);
+
+      // Atualiza user e form com dados vindos do backend
+      setUser(updatedUser);
+      setForm({
+        institution: updatedUser.institution || "",
+        email: updatedUser.email || "",
+      });
+
+      // Limpa preview e estado de edição
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
       setFile(null);
+      setEditing(false);
       setImageError(false);
+
       alert("Perfil atualizado com sucesso!");
     } catch (err: any) {
+      console.error("Erro ao salvar perfil:", err);
       alert(err?.message || "Erro ao salvar perfil");
     } finally {
       setSaving(false);
     }
   };
+
+  const handleCancelEdit = () => {
+    setEditing(false);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    setFile(null);
+    setImageError(false);
+    // Restaura form com valores atuais do user
+    setForm({
+      institution: user?.institution || "",
+      email: user?.email || "",
+    });
+  };
+
+  const photoUrl = previewUrl ?? (user?.profile_photo ? getPhotoUrl(user.profile_photo) : null);
 
   if (loading) {
     return (
@@ -219,48 +271,46 @@ export default function PerfilPage() {
               <div className="p-card-header">
                 <div className="p-avatar-section">
                   <div className="p-avatar-large">
-                    {(() => {
-                      if (file) {
-                        return (
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt="preview"
-                            onError={() => setImageError(true)}
-                            onLoad={() => setImageError(false)}
-                          />
-                        );
-                      }
-                      if (user?.profile_photo && !imageError) {
-                        return (
-                          <img
-                            src={getPhotoUrl(user.profile_photo) ?? undefined}
-                            alt="avatar"
-                            onError={() => setImageError(true)}
-                            onLoad={() => setImageError(false)}
-                          />
-                        );
-                      }
-                      return <div className="p-avatar-placeholder">Sem foto</div>;
-                    })()}
+                    {photoUrl && !imageError ? (
+                      <img
+                        src={photoUrl}
+                        alt="Foto de perfil"
+                        onError={() => setImageError(true)}
+                        onLoad={() => setImageError(false)}
+                      />
+                    ) : (
+                      <div className="p-avatar-placeholder">Sem foto</div>
+                    )}
                   </div>
-                  <button
-                    className="p-btn-edit"
-                    onClick={() => {
-                      if (editing) {
-                        document.getElementById("file-input")?.click();
-                      } else {
-                        setEditing(true);
-                      }
-                    }}
-                  >
-                    {editing ? "Selecionar Foto" : "Editar"}
-                  </button>
+
+                  {!editing ? (
+                    <button className="p-btn-edit" onClick={() => setEditing(true)}>
+                      Editar
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        className="p-btn-edit"
+                        onClick={() => document.getElementById("file-input")?.click()}
+                      >
+                        Selecionar Foto
+                      </button>
+                      <button
+                        className="p-btn-edit"
+                        style={{ background: "#6b7a8d" }}
+                        onClick={handleCancelEdit}
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  )}
+
                   <input
                     id="file-input"
                     type="file"
                     accept="image/*"
                     style={{ display: "none" }}
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                    onChange={handleFileChange}
                   />
                 </div>
 
@@ -272,7 +322,7 @@ export default function PerfilPage() {
                         type="text"
                         className="p-input"
                         value={form.institution}
-                        onChange={(e) => editing && setForm({ ...form, institution: e.target.value })}
+                        onChange={(e) => setForm({ ...form, institution: e.target.value })}
                         disabled={!editing}
                       />
                     </div>
@@ -282,7 +332,7 @@ export default function PerfilPage() {
                         type="email"
                         className="p-input"
                         value={form.email}
-                        onChange={(e) => editing && setForm({ ...form, email: e.target.value })}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
                         disabled={!editing}
                       />
                     </div>
