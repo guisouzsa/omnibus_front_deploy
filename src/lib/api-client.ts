@@ -232,6 +232,17 @@ class ApiClient {
     return response;
   }
 
+  public async login<T extends { token: string; message?: string; user?: any; [key: string]: any }>(
+    endpoint: string,
+    credentials: any
+  ): Promise<T> {
+    const response = await this.post<T>(endpoint, credentials);
+    if (response.token) {
+      this.setToken(response.token);
+    }
+    return response;
+  }
+
   // Método para verificar se está autenticado localmente (só checa localStorage)
   public isAuthenticated(): boolean {
     return !!this.getToken();
