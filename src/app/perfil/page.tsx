@@ -58,6 +58,25 @@ const css = `
   }
 `;
 
+// FIX: Normaliza a resposta do Laravel que retorna { message, data: user }
+// O backend retorna sempre { message: '...', data: { id, name, email, ... } }
+const normalizeUser = (resp: any) => {
+  return resp?.data ?? resp?.user ?? resp?.data?.user ?? resp;
+};
+
+// FIX: Monta a URL completa da foto
+// Se já for URL completa (Cloudinary, S3, etc), usa direto
+// Se for caminho relativo do Laravel storage, monta com a base da API
+const getPhotoUrl = (photoPath: string | null): string | null => {
+  if (!photoPath) return null;
+  if (photoPath.startsWith("http://") || photoPath.startsWith("https://")) {
+    return photoPath; // URL completa (Cloudinary, S3, etc)
+  }
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const pathWithSlash = photoPath.startsWith("/") ? photoPath : "/" + photoPath;
+  return `${apiBaseUrl}${pathWithSlash}?t=${Date.now()}`;
+};
+
 export default function PerfilPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -67,22 +86,9 @@ export default function PerfilPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [form, setForm] = useState({ institution: "", email: "" });
 
-  // Monta a URL completa da foto a partir do caminho retornado pelo backend
-  const getPhotoUrl = (photoPath: string | null): string | null => {
-    if (!photoPath) return null;
-    if (photoPath.startsWith("http://") || photoPath.startsWith("https://")) return photoPath;
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    const pathWithSlash = photoPath.startsWith("/") ? photoPath : "/" + photoPath;
-    // Adiciona timestamp para evitar cache do browser após atualização
-    return `${apiBaseUrl}${pathWithSlash}?t=${Date.now()}`;
-  };
-
-  // Normaliza a resposta da API independente do shape retornado
-  const normalizeUser = (resp: any) => {
-    return resp?.user ?? resp?.data?.user ?? resp?.data ?? resp;
-  };
+  // FIX: Inclui o campo "name" que faltava antes
+  const [form, setForm] = useState({ name: "", institution: "", email: "" });
 
   useEffect(() => {
     async function load() {
@@ -91,12 +97,15 @@ export default function PerfilPage() {
         const userData = normalizeUser(resp);
         setUser(userData);
         setImageError(false);
+        // FIX: Popula "name" junto com os outros campos
         setForm({
+          name: userData.name || "",
           institution: userData.institution || "",
           email: userData.email || "",
         });
       } catch (err) {
         console.error("Erro ao carregar user:", err);
+        // Se deu erro aqui, o api-client já cuidou do redirect em caso de 401
       } finally {
         setLoading(false);
       }
@@ -104,11 +113,10 @@ export default function PerfilPage() {
     load();
   }, []);
 
-  // Gera preview local quando o usuário seleciona um arquivo
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0] ?? null;
     setFile(selected);
-    if (previewUrl) URL.revokeObjectURL(previewUrl); // libera URL anterior
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(selected ? URL.createObjectURL(selected) : null);
     setImageError(false);
   };
@@ -118,23 +126,23 @@ export default function PerfilPage() {
     try {
       const fd = new FormData();
       fd.append("_method", "PATCH");
+      // FIX: Envia "name" para o backend salvar no banco
+      fd.append("name", form.name);
       fd.append("institution", form.institution);
       fd.append("email", form.email);
       if (file) fd.append("profile_photo", file);
 
       const resp = await apiClient.post("/api/user/profile", fd, { isFormData: true });
-
-      // Normaliza resposta independente do shape da API
       const updatedUser = normalizeUser(resp);
 
-      // Atualiza user e form com dados vindos do backend
       setUser(updatedUser);
+      // FIX: Atualiza "name" após salvar
       setForm({
+        name: updatedUser.name || "",
         institution: updatedUser.institution || "",
         email: updatedUser.email || "",
       });
 
-      // Limpa preview e estado de edição
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
       setFile(null);
@@ -156,14 +164,17 @@ export default function PerfilPage() {
     setPreviewUrl(null);
     setFile(null);
     setImageError(false);
-    // Restaura form com valores atuais do user
     setForm({
+      name: user?.name || "",
       institution: user?.institution || "",
       email: user?.email || "",
     });
   };
 
   const photoUrl = previewUrl ?? (user?.profile_photo ? getPhotoUrl(user.profile_photo) : null);
+
+  // Pega a primeira letra do nome para o avatar da sidebar
+  const avatarLetter = user?.name?.[0]?.toUpperCase() || "A";
 
   if (loading) {
     return (
@@ -241,9 +252,13 @@ export default function PerfilPage() {
             </button>
           </nav>
           <div className="p-sidebar-footer">
+            {/* FIX: Sidebar agora exibe o nome e letra real do usuário logado */}
             <button className="p-user-row" style={{ cursor: "default" }}>
-              <div className="p-avatar">A</div>
-              <div><div className="p-user-name">Admin</div><div className="p-user-role">Gestor</div></div>
+              <div className="p-avatar">{avatarLetter}</div>
+              <div>
+                <div className="p-user-name">{user?.name || "Usuário"}</div>
+                <div className="p-user-role">Gestor</div>
+              </div>
             </button>
             <SidebarLogoutButton />
           </div>
@@ -316,6 +331,17 @@ export default function PerfilPage() {
 
                 <div style={{ flex: 1 }}>
                   <div className="p-form-grid">
+                    {/* FIX: Campo "Nome" adicionado — era o que faltava para salvar no banco */}
+                    <div className="p-form-group">
+                      <label className="p-label">Nome</label>
+                      <input
+                        type="text"
+                        className="p-input"
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        disabled={!editing}
+                      />
+                    </div>
                     <div className="p-form-group">
                       <label className="p-label">Instituição</label>
                       <input
