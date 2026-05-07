@@ -7,7 +7,6 @@ import {
   ApiResponse,
 } from '@/types/api';
 
-// Normaliza resposta do Laravel que retorna { data: user } ou { user } ou direto
 const normalizeUser = (resp: any): User => {
   return resp?.data ?? resp?.user ?? resp;
 };
@@ -17,15 +16,14 @@ class AuthService {
     return apiClient.post('/api/register', data);
   }
 
-
-    async login(credentials: LoginRequest): Promise<LoginResponse> {
-      const resp = await apiClient.login('/api/login', credentials);
-      return {
-        ...resp,
-        message: resp.message ?? '',
-        user: normalizeUser(resp),
-      };
-    }
+  async login(credentials: LoginRequest): Promise<LoginResponse> {
+    const resp = await apiClient.login('/api/login', credentials);
+    return {
+      message: resp.message ?? '',
+      token: resp.token,
+      user: normalizeUser(resp),
+    };
+  }
 
   async getUser(): Promise<User> {
     const resp = await apiClient.get('/api/user');
