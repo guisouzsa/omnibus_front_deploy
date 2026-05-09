@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRoutes } from "@/hooks/useRoutes";
 import { useSchools } from "@/hooks/useSchools";
@@ -87,29 +87,10 @@ const css = `
   }
   body { font-family: 'DM Sans', sans-serif; font-weight: 400; }
   .layout { display: flex; min-height: 100vh; background: var(--bg); }
-
-  /* ── Loading ── */
-  .loading-screen {
-    position: fixed; inset: 0;
-    background: #01233F;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 16px; z-index: 9999;
-  }
-  .loading-spinner {
-    width: 40px; height: 40px; border-radius: 50%;
-    border: 2.5px solid rgba(241,187,19,0.15);
-    border-top-color: #f1bb13;
-    animation: spin 0.8s cubic-bezier(0.4,0,0.2,1) infinite;
-  }
+  .loading-screen { position: fixed; inset: 0; background: #01233F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 9999; }
+  .loading-spinner { width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid rgba(241,187,19,0.15); border-top-color: #f1bb13; animation: spin 0.8s cubic-bezier(0.4,0,0.2,1) infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-label {
-    font-size: 14px; font-weight: 600;
-    color: rgba(255,255,255,0.75);
-    letter-spacing: 1.5px; text-transform: uppercase;
-    font-family: 'DM Sans', sans-serif;
-  }
-
+  .loading-label { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.75); letter-spacing: 1.5px; text-transform: uppercase; font-family: 'DM Sans', sans-serif; }
   .sidebar { width: var(--sidebar-w); background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
   .sidebar-logo { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
   .logo-texts { display: flex; flex-direction: column; }
@@ -126,9 +107,7 @@ const css = `
   .avatar { width: 32px; height: 32px; background: var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--navy); flex-shrink: 0; }
   .user-name { font-size: 13px; font-weight: 600; color: #fff; }
   .user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
-
   .content { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
-
   .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
   .topbar-title { font-size: 18px; font-weight: 700; color: var(--navy); }
   .topbar-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
@@ -138,8 +117,6 @@ const css = `
   .notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: var(--red); border-radius: 50%; border: 2px solid #fff; }
   .topbar-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--navy); cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; flex-shrink: 0; }
   .topbar-avatar:hover { border-color: var(--yellow-dark); }
-
-  /* ── card de edição — intocado ── */
   .body { padding: 44px 52px; display: flex; flex-direction: column; align-items: center; flex: 1; }
   .page-title { font-size: 20px; font-weight: 600; color: var(--navy); letter-spacing: 0.3px; margin-bottom: 28px; text-align: center; }
   .card { background: #fff; border-radius: 12px; padding: 52px 56px 48px; width: 100%; max-width: 800px; box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04); border: 1px solid var(--border); }
@@ -158,7 +135,6 @@ const css = `
   .btn:hover { background: var(--yellow-dark); transform: translateY(-1px); }
   .btn:active { transform: translateY(0); }
   .btn:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; transform: none; }
-
   @media (max-width: 900px) {
     :root { --sidebar-w: 0px; }
     .sidebar { display: none; }
@@ -168,7 +144,18 @@ const css = `
   }
 `;
 
-export default function EditRotaPage() {
+const LoadingUI = () => (
+  <>
+    <style dangerouslySetInnerHTML={{ __html: css }} />
+    <div className="loading-screen">
+      <div className="loading-spinner" />
+      <span className="loading-label">Carregando</span>
+    </div>
+  </>
+);
+
+// ─── Page ────────────────────────────────────────────────────────────────────
+function EditRotaPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const routeId = searchParams.get("id");
@@ -235,18 +222,7 @@ export default function EditRotaPage() {
     }
   };
 
-  // ── Loading screen padrão ──────────────────────────────────────────────────
-  if (loadingData) {
-    return (
-      <>
-        <style dangerouslySetInnerHTML={{ __html: css }} />
-        <div className="loading-screen">
-          <div className="loading-spinner" />
-          <span className="loading-label">Carregando</span>
-        </div>
-      </>
-    );
-  }
+  if (loadingData) return <LoadingUI />;
 
   return (
     <>
@@ -347,5 +323,14 @@ export default function EditRotaPage() {
         </div>
       </div>
     </>
+  );
+}
+
+// ─── Wrapper com Suspense (obrigatório pelo Next.js para useSearchParams) ─────
+export default function Page() {
+  return (
+    <Suspense fallback={<LoadingUI />}>
+      <EditRotaPage />
+    </Suspense>
   );
 }
