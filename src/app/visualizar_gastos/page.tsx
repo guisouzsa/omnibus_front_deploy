@@ -269,10 +269,14 @@ function getCurrentPeriod() {
 function getProofUrl(path?: string) {
   if (!path) return null;
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  if (path.startsWith("data:")) return path;
+
   const baseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
   return `${baseUrl}${normalizedPath}`;
 }
+
 function getLimitAmount(limit: { limit_amount?: number | string; limit_value?: number | string } | null) {
   if (!limit) return 0;
   if (typeof limit.limit_amount === "number") return limit.limit_amount;
