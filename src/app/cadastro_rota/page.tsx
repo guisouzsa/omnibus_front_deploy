@@ -226,9 +226,11 @@ export default function CadastroRotaPage() {
       return;
     }
 
-    await createRoute({ ...form, school_id: Number(form.school_id) });
-    router.push("/lista_rotas");
-  };
+  await createRoute({
+    ...form,
+    end_point: form.end_point,
+    school_id: Number(form.school_id),
+  });
 
   if (loading) {
     return (
