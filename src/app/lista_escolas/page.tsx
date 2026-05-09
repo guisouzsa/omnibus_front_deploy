@@ -5,28 +5,25 @@ import { useRouter } from "next/navigation";
 import { useSchools } from "@/hooks/useSchools";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-// Ônibus lateral — exagerado, simples, alto contraste
-function BusSideIcon({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 40 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="1" y="2" width="34" height="17" rx="3.5" fill="rgba(255,255,255,0.95)" />
-      <rect x="1" y="2" width="34" height="5.5" rx="3.5" fill="#f1bb13" />
-      <rect x="1" y="5.5" width="34" height="2" fill="#f1bb13" />
-      <rect x="35" y="6" width="4" height="9" rx="2" fill="rgba(255,255,255,0.75)" />
-      <rect x="5"  y="9" width="7" height="6" rx="1.5" fill="#01233F" />
-      <rect x="14" y="9" width="7" height="6" rx="1.5" fill="#01233F" />
-      <rect x="23" y="9" width="6" height="6" rx="1.5" fill="#01233F" />
-      <circle cx="9"  cy="23" r="5.5" fill="#01233F" />
-      <circle cx="9"  cy="23" r="3"   fill="rgba(255,255,255,0.9)" />
-      <circle cx="9"  cy="23" r="1.3" fill="#01233F" />
-      <circle cx="28" cy="23" r="5.5" fill="#01233F" />
-      <circle cx="28" cy="23" r="3"   fill="rgba(255,255,255,0.9)" />
-      <circle cx="28" cy="23" r="1.3" fill="#01233F" />
-    </svg>
-  );
-}
+  function BusSideIcon({ size = 28 }: { size?: number }) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 44 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Corpo */}
+        <rect x="0" y="0" width="38" height="20" rx="3" stroke="white" strokeWidth="1.8"/>
+        {/* Janelas */}
+        <rect x="3"  y="4" width="7" height="7" rx="1" stroke="white" strokeWidth="1.5"/>
+        <rect x="13" y="4" width="7" height="7" rx="1" stroke="white" strokeWidth="1.5"/>
+        <rect x="23" y="4" width="7" height="7" rx="1" stroke="white" strokeWidth="1.5"/>
+        {/* Bump frontal */}
+        <rect x="38" y="5" width="3" height="10" rx="1.5" stroke="white" strokeWidth="1.5"/>
+        {/* Rodas */}
+        <circle cx="8"  cy="24" r="4" stroke="white" strokeWidth="1.8"/>
+        <circle cx="30" cy="24" r="4" stroke="white" strokeWidth="1.8"/>
+        {/* Linha de base */}
+        <line x1="0" y1="20" x2="38" y2="20" stroke="white" strokeWidth="1.2" strokeOpacity="0.4"/>
+      </svg>
+    );
+  }
 
 function BusFrontIcon({ size = 17, color = "currentColor" }: { size?: number; color?: string }) {
   return (
