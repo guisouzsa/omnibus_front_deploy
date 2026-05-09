@@ -222,15 +222,18 @@ export default function CadastroRotaPage() {
     setErrorMessage("");
 
     if (!form.name || !form.start_point_cep || !form.departure_time || !form.school_id) {
-      setErrorMessage("Preencha todos os campos obrigatórios");
-      return;
+    setErrorMessage("Preencha todos os campos obrigatórios");
+    return;
     }
 
-  await createRoute({
+    await createRoute({
     ...form,
     end_point: form.end_point,
     school_id: Number(form.school_id),
   });
+
+  router.push("/lista_rotas");
+};
 
   if (loading) {
     return (
