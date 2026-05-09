@@ -357,6 +357,12 @@ export default function PerfilPage() {
               </svg>
               Escolas
             </button>
+            <button className="p-nav-item" onClick={() => router.push("/instrucoes")}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 2H6a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h13a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zm-7 14H8a1 1 0 1 1 0-2h4a1 1 0 1 1 0 2zm4-4H8a1 1 0 1 1 0-2h8a1 1 0 1 1 0 2zm0-4H8a1 1 0 0 1 0-2h8a1 1 0 0 1 0 2z"/>
+              </svg>
+              Instruções
+            </button>
           </nav>
           <div className="p-sidebar-footer">
             <button className="p-user-row">
