@@ -446,9 +446,7 @@ export default function VisualizarRotaPage() {
           {/* ── Topbar ── */}
           <header className="topbar">
             <div className="topbar-left">
-              <button className="back-btn" onClick={() => router.push("/lista_rotas")}>
-                <ArrowLeftIcon /> Voltar
-              </button>
+
               <div className="topbar-divider" />
               <div>
                 <div className="topbar-title">{routeName || "Visualizar Rota"}</div>
