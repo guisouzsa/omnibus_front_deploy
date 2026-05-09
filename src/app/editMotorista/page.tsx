@@ -5,87 +5,92 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useDrivers } from "@/hooks";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
-function BusIcon({ size = 22, color = "currentColor" }: { size?: number; color?: string }) {
+// ─── Icons ────────────────────────────────────────────────────────────────────
+function BusSideIcon({ size = 28 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 9h20"/><path d="M8 4V2"/><path d="M16 4V2"/>
-      <circle cx="7" cy="20" r="2" fill={color} stroke={color}/><circle cx="17" cy="20" r="2" fill={color} stroke={color}/><path d="M5 18h14"/>
+    <svg width={size} height={size} viewBox="0 0 44 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="38" height="20" rx="3" stroke="white" strokeWidth="1.8"/>
+      <rect x="3"  y="4" width="7" height="7" rx="1" stroke="white" strokeWidth="1.5"/>
+      <rect x="13" y="4" width="7" height="7" rx="1" stroke="white" strokeWidth="1.5"/>
+      <rect x="23" y="4" width="7" height="7" rx="1" stroke="white" strokeWidth="1.5"/>
+      <rect x="38" y="5" width="3" height="10" rx="1.5" stroke="white" strokeWidth="1.5"/>
+      <circle cx="8"  cy="24" r="4" stroke="white" strokeWidth="1.8"/>
+      <circle cx="30" cy="24" r="4" stroke="white" strokeWidth="1.8"/>
+      <line x1="0" y1="20" x2="38" y2="20" stroke="white" strokeWidth="1.2" strokeOpacity="0.4"/>
     </svg>
   );
 }
-function RouteIcon({ size = 22, color = "currentColor" }: { size?: number; color?: string }) {
+function BusFrontIcon({ size = 17, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 6.5A3.5 3.5 0 0 1 7.5 3h9A3.5 3.5 0 0 1 20 6.5V15a2 2 0 0 1-1 1.732V18a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-.5H8V18a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1.268A2 2 0 0 1 4 15V6.5zM7.5 5A1.5 1.5 0 0 0 6 6.5V9h12V6.5A1.5 1.5 0 0 0 16.5 5h-9zM6 11v2h12v-2H6zm1.5 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
     </svg>
   );
 }
-function DriverIcon({ size = 22, color = "currentColor" }: { size?: number; color?: string }) {
+function RouteIconFilled({ size = 17, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/>
     </svg>
   );
 }
-function SchoolIcon({ size = 22, color = "currentColor" }: { size?: number; color?: string }) {
+function DriverIconFilled({ size = 17, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-      <polyline points="9 22 9 12 15 12 15 22" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="7" r="4"/>
+      <path d="M5 21a7 7 0 0 1 14 0H5z"/>
     </svg>
   );
 }
-function DashIcon() {
+function SchoolIconFilled({ size = 17, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+      <path d="M5 13.18V17c0 2.21 3.13 4 7 4s7-1.79 7-4v-3.82l-7 3.82-7-3.82z"/>
     </svg>
   );
 }
-function FinanceIcon() {
+function DashIconFilled({ size = 17, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+      <rect x="14" y="14" width="7" height="7" rx="1.5"/>
     </svg>
   );
 }
-function BellIcon() {
+function FinanceIconFilled({ size = 17, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2a1 1 0 0 1 1 1v1.07C16.39 4.56 19 6.58 19 9c0 .55-.45 1-1 1s-1-.45-1-1c0-1.3-2.06-2.5-5-2.5S7 7.7 7 9s2.06 2.5 5 2.5c3.87 0 6 1.93 6 4.5 0 2.42-2.61 4.44-6 4.93V22a1 1 0 1 1-2 0v-1.07C6.61 20.44 4 18.42 4 16c0-.55.45-1 1-1s1 .45 1 1c0 1.3 2.06 2.5 5 2.5s5-1.2 5-2.5-2.06-2.5-5-2.5c-3.87 0-6-1.93-6-4.5C5 6.58 7.61 4.56 11 4.07V3a1 1 0 0 1 1-1z"/>
     </svg>
   );
 }
-function UserIcon() {
+function BellIconFilled({ size = 19, color = "currentColor" }: { size?: number; color?: string }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2a6 6 0 0 0-6 6c0 3.53-.88 5.7-1.76 7.04C3.46 16.43 3 17 3 17h18s-.46-.57-1.24-1.96C18.88 13.7 18 11.53 18 8a6 6 0 0 0-6-6z"/>
+      <path d="M10.27 21a2 2 0 0 0 3.46 0H10.27z"/>
     </svg>
   );
 }
 
+// ─── CSS — sidebar/topbar idênticos ao padrão; card de edição intocado ────────
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --navy: #01233F;
-    --yellow: #f1bb13;
-    --yellow-dark: #d9a700;
-    --bg: #f0f2f5;
-    --border: #e2e6ea;
-    --muted: #6b7a8d;
-    --red: #ef4444;
-    --sidebar-w: 220px;
+    --navy: #01233F; --yellow: #f1bb13; --yellow-dark: #d9a700;
+    --bg: #f0f2f5; --card: #ffffff; --border: #e2e6ea;
+    --text: #01233F; --muted: #6b7a8d; --red: #ef4444; --sidebar-w: 220px;
   }
-
   body { font-family: 'DM Sans', sans-serif; font-weight: 400; }
   .layout { display: flex; min-height: 100vh; background: var(--bg); }
 
   .sidebar { width: var(--sidebar-w); background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
-  .sidebar-logo { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
-  .logo-icon { width: 34px; height: 34px; background: var(--yellow); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sidebar-logo { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+  .logo-texts { display: flex; flex-direction: column; }
   .logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
   .logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; font-weight: 400; margin-top: 1px; }
   .sidebar-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 2px; }
@@ -93,7 +98,7 @@ const css = `
   .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.55); cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
   .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
   .nav-item.active { background: var(--yellow); color: var(--navy); font-weight: 600; }
-  .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 4px; }
   .user-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: background 0.15s; }
   .user-row:hover { background: rgba(255,255,255,0.07); }
   .avatar { width: 32px; height: 32px; background: var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--navy); flex-shrink: 0; }
@@ -102,34 +107,31 @@ const css = `
 
   .content { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-  .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0 36px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-  .topbar-title { font-size: 16px; font-weight: 600; color: var(--navy); }
-  .topbar-sub { font-size: 12px; color: var(--muted); margin-top: 1px; font-weight: 400; }
-  .topbar-right { display: flex; align-items: center; gap: 10px; }
-  .icon-btn { width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--navy); transition: all 0.15s; position: relative; }
+  .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .topbar-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .topbar-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+  .icon-btn { width: 38px; height: 38px; border-radius: 50%; border: none; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--navy); transition: background 0.15s; position: relative; }
   .icon-btn:hover { background: var(--bg); }
-  .notif-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: var(--red); border-radius: 50%; border: 1.5px solid #fff; }
+  .notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: var(--red); border-radius: 50%; border: 2px solid #fff; }
+  .topbar-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--navy); cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; flex-shrink: 0; }
+  .topbar-avatar:hover { border-color: var(--yellow-dark); }
 
+  /* ── card de edição — intocado ── */
   .body { padding: 44px 52px; display: flex; flex-direction: column; align-items: center; flex: 1; }
   .page-title { font-size: 20px; font-weight: 600; color: var(--navy); letter-spacing: 0.3px; margin-bottom: 28px; text-align: center; }
-
   .card { background: #fff; border-radius: 12px; padding: 52px 56px 48px; width: 100%; max-width: 800px; box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04); border: 1px solid var(--border); }
-
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .row .field { margin-bottom: 20px; }
   .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
   .field.full { width: 100%; }
-
   .label { font-size: 11px; font-weight: 600; color: var(--navy); letter-spacing: 0.8px; text-transform: uppercase; }
-
   .input { width: 100%; height: 52px; border: 1.5px solid var(--border); border-radius: 8px; padding: 0 16px; font-size: 14px; font-weight: 400; color: var(--navy); background: #f7f8fa; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
   .input::placeholder { color: #b0bac6; font-size: 13px; font-weight: 400; }
   .input:focus { border-color: var(--yellow); background: #fff; box-shadow: 0 0 0 3px rgba(241,187,19,0.12); }
-
   .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 500; }
   .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
   .alert-error   { background: #fde8e8; color: #7f1d1d; border: 1px solid #fca5a5; }
-
   .btn { width: 100%; height: 52px; background: var(--yellow); border: none; border-radius: 8px; font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #ffffff; text-transform: uppercase; cursor: pointer; margin-top: 8px; font-family: 'DM Sans', sans-serif; transition: background 0.15s, transform 0.1s; }
   .btn:hover { background: var(--yellow-dark); transform: translateY(-1px); }
   .btn:active { transform: translateY(0); }
@@ -147,23 +149,23 @@ const css = `
 export default function EditarMotoristaPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const driverId = searchParams.get('id');
+  const driverId = searchParams.get("id");
 
   const { getDriver, updateDriver, loading } = useDrivers(false);
 
   const [form, setForm] = useState({ nome: "", email: "", telefone: "", numeroCnh: "" });
-  const [loadingData, setLoadingData] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [loadingData,    setLoadingData]    = useState(true);
+  const [errorMessage,   setErrorMessage]   = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
-    if (!driverId) { router.push('/lista_motoristas'); return; }
+    if (!driverId) { router.push("/lista_motoristas"); return; }
     const loadDriver = async () => {
       const driver = await getDriver(parseInt(driverId));
       if (driver) {
         setForm({ nome: driver.name, email: driver.email, telefone: driver.phone_number, numeroCnh: driver.license_number });
       } else {
-        setErrorMessage('Motorista não encontrado');
+        setErrorMessage("Motorista não encontrado");
       }
       setLoadingData(false);
     };
@@ -190,7 +192,11 @@ export default function EditarMotoristaPage() {
   };
 
   if (loadingData) {
-    return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>Carregando dados do motorista...</div>;
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>
+        Carregando dados do motorista...
+      </div>
+    );
   }
 
   return (
@@ -199,21 +205,24 @@ export default function EditarMotoristaPage() {
       <div className="layout">
         <aside className="sidebar">
           <div className="sidebar-logo">
-            <div className="logo-icon"><BusIcon size={18} color="#01233F" /></div>
-            <div><div className="logo-text">Omnibus</div><div className="logo-sub">Gestão Escolar</div></div>
+            <BusSideIcon size={28} />
+            <div className="logo-texts">
+              <div className="logo-text">Omnibus</div>
+              <div className="logo-sub">Gestão Escolar</div>
+            </div>
           </div>
           <nav className="sidebar-nav">
             <span className="nav-label">Principal</span>
-            <button className="nav-item" onClick={() => router.push("/dashboard")}><DashIcon /> Dashboard</button>
-            <button className="nav-item" onClick={() => router.push("/visualizar_gastos")}><FinanceIcon /> Financeiro</button>
+            <button className="nav-item" onClick={() => router.push("/dashboard")}><DashIconFilled /> Dashboard</button>
+            <button className="nav-item" onClick={() => router.push("/visualizar_gastos")}><FinanceIconFilled /> Financeiro</button>
             <span className="nav-label">Cadastros</span>
-            <button className="nav-item" onClick={() => router.push("/lista_onibus")}><BusIcon size={17} /> Ônibus</button>
-            <button className="nav-item" onClick={() => router.push("/lista_rotas")}><RouteIcon size={17} /> Rotas</button>
-            <button className="nav-item active"><DriverIcon size={17} /> Motoristas</button>
-            <button className="nav-item" onClick={() => router.push("/lista_escolas")}><SchoolIcon size={17} /> Escolas</button>
+            <button className="nav-item" onClick={() => router.push("/lista_onibus")}><BusFrontIcon /> Ônibus</button>
+            <button className="nav-item" onClick={() => router.push("/lista_rotas")}><RouteIconFilled /> Rotas</button>
+            <button className="nav-item active"><DriverIconFilled /> Motoristas</button>
+            <button className="nav-item" onClick={() => router.push("/lista_escolas")}><SchoolIconFilled /> Escolas</button>
           </nav>
           <div className="sidebar-footer">
-            <button className="user-row" onClick={() => router.push("/infor_instituicao")}>
+            <button className="user-row" onClick={() => router.push("/perfil")}>
               <div className="avatar">A</div>
               <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
@@ -228,8 +237,10 @@ export default function EditarMotoristaPage() {
               <div className="topbar-sub">Atualize os dados do motorista</div>
             </div>
             <div className="topbar-right">
-              <button className="icon-btn" onClick={() => router.push("/notificacoes")}><BellIcon /><span className="notif-dot" /></button>
-              <button className="icon-btn" onClick={() => router.push("/infor_instituicao")}><UserIcon /></button>
+              <button className="icon-btn" onClick={() => router.push("/notificacoes")} title="Notificações">
+                <BellIconFilled /><span className="notif-dot" />
+              </button>
+              <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">A</div>
             </div>
           </header>
 
