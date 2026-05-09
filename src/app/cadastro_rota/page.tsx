@@ -91,8 +91,7 @@ const css = `
 
   /* ── Loading ── */
   .loading-screen {
-    position: fixed; inset: 0;
-    background: #01233F;
+    position: fixed; inset: 0; background: #01233F;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 16px; z-index: 9999;
@@ -162,6 +161,10 @@ const css = `
   .btn:active { transform: translateY(0); }
   .btn:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; transform: none; }
   .btn-secondary { background: #f0f2f5; color: var(--navy); }
+  .cep-row { display: grid; grid-template-columns: 1fr 120px; gap: 10px; }
+  .btn-cep { height: 52px; border: none; border-radius: 8px; background: var(--navy); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity 0.15s; }
+  .btn-cep:hover { opacity: 0.85; }
+  .btn-cep:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-secondary:hover { background: #e2e6ea; transform: translateY(-1px); }
 
   @media (max-width: 900px) {
@@ -184,6 +187,7 @@ export default function CadastroRotaPage() {
     start_point_cep: "",
     start_point: "",
     start_point_reference: "",
+    end_point: "",
     departure_time: "",
     school_id: "",
   });
@@ -195,7 +199,14 @@ export default function CadastroRotaPage() {
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setErrorMessage("");
+  };
+
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+    const masked = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+    setForm(prev => ({ ...prev, start_point_cep: masked }));
     setErrorMessage("");
   };
 
@@ -215,7 +226,7 @@ export default function CadastroRotaPage() {
       return;
     }
 
-    await createRoute(form);
+    await createRoute({ ...form, school_id: Number(form.school_id) });
     router.push("/lista_rotas");
   };
 
@@ -247,18 +258,33 @@ export default function CadastroRotaPage() {
           </div>
           <nav className="sidebar-nav">
             <span className="nav-label">Principal</span>
-            <button className="nav-item" onClick={() => router.push("/dashboard")}><DashIconFilled /> Dashboard</button>
-            <button className="nav-item" onClick={() => router.push("/visualizar_gastos")}><FinanceIconFilled /> Financeiro</button>
+            <button className="nav-item" onClick={() => router.push("/dashboard")}>
+              <DashIconFilled /> Dashboard
+            </button>
+            <button className="nav-item" onClick={() => router.push("/visualizar_gastos")}>
+              <FinanceIconFilled /> Financeiro
+            </button>
             <span className="nav-label">Cadastros</span>
-            <button className="nav-item" onClick={() => router.push("/lista_onibus")}><BusFrontIcon /> Ônibus</button>
-            <button className="nav-item active"><RouteIconFilled /> Rotas</button>
-            <button className="nav-item" onClick={() => router.push("/lista_motoristas")}><DriverIconFilled /> Motoristas</button>
-            <button className="nav-item" onClick={() => router.push("/lista_escolas")}><SchoolIconFilled /> Escolas</button>
+            <button className="nav-item" onClick={() => router.push("/lista_onibus")}>
+              <BusFrontIcon /> Ônibus
+            </button>
+            <button className="nav-item active">
+              <RouteIconFilled /> Rotas
+            </button>
+            <button className="nav-item" onClick={() => router.push("/lista_motoristas")}>
+              <DriverIconFilled /> Motoristas
+            </button>
+            <button className="nav-item" onClick={() => router.push("/lista_escolas")}>
+              <SchoolIconFilled /> Escolas
+            </button>
           </nav>
           <div className="sidebar-footer">
             <button className="user-row" onClick={() => router.push("/perfil")}>
               <div className="avatar">A</div>
-              <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
+              <div>
+                <div className="user-name">Admin</div>
+                <div className="user-role">Gestor</div>
+              </div>
             </button>
             <SidebarLogoutButton />
           </div>
@@ -273,7 +299,8 @@ export default function CadastroRotaPage() {
             </div>
             <div className="topbar-right">
               <button className="icon-btn" onClick={() => router.push("/notificacoes")} title="Notificações">
-                <BellIconFilled /><span className="notif-dot" />
+                <BellIconFilled />
+                <span className="notif-dot" />
               </button>
               <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">A</div>
             </div>
@@ -302,25 +329,26 @@ export default function CadastroRotaPage() {
                 <div className="row">
                   <div className="field">
                     <label className="label">CEP</label>
-                    <input
-                      type="text"
-                      className="input"
-                      name="start_point_cep"
-                      placeholder="Ex: 62900-000"
-                      value={form.start_point_cep}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="field" style={{ justifyContent: "flex-end" }}>
-                    <button
-                      type="button"
-                      className={`btn btn-secondary`}
-                      style={{ marginTop: 0 }}
-                      onClick={handleCep}
-                      disabled={loadingCep}
-                    >
-                      {loadingCep ? "Buscando..." : "Buscar CEP"}
-                    </button>
+                    <div className="cep-row">
+                      <input
+                        type="text"
+                        className="input"
+                        name="start_point_cep"
+                        placeholder="Ex: 62900-000"
+                        value={form.start_point_cep}
+                        onChange={handleCepChange}
+                        maxLength={9}
+                        inputMode="numeric"
+                      />
+                      <button
+                        type="button"
+                        className="btn-cep"
+                        onClick={handleCep}
+                        disabled={loadingCep || !form.start_point_cep}
+                      >
+                        {loadingCep ? "..." : "Buscar"}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -366,6 +394,7 @@ export default function CadastroRotaPage() {
                 <button type="submit" className="btn" disabled={loading}>
                   {loading ? "Cadastrando..." : "Cadastrar Rota"}
                 </button>
+
               </form>
             </div>
           </div>
