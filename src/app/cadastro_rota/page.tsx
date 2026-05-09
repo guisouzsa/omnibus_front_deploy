@@ -89,28 +89,11 @@ const css = `
   body { font-family: 'DM Sans', sans-serif; font-weight: 400; }
   .layout { display: flex; min-height: 100vh; background: var(--bg); }
 
-  /* ── Loading ── */
-  .loading-screen {
-    position: fixed; inset: 0; background: #01233F;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 16px; z-index: 9999;
-  }
-  .loading-spinner {
-    width: 40px; height: 40px; border-radius: 50%;
-    border: 2.5px solid rgba(241,187,19,0.15);
-    border-top-color: #f1bb13;
-    animation: spin 0.8s cubic-bezier(0.4,0,0.2,1) infinite;
-  }
+  .loading-screen { position: fixed; inset: 0; background: #01233F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 9999; }
+  .loading-spinner { width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid rgba(241,187,19,0.15); border-top-color: #f1bb13; animation: spin 0.8s cubic-bezier(0.4,0,0.2,1) infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-label {
-    font-size: 14px; font-weight: 600;
-    color: rgba(255,255,255,0.75);
-    letter-spacing: 1.5px; text-transform: uppercase;
-    font-family: 'DM Sans', sans-serif;
-  }
+  .loading-label { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.75); letter-spacing: 1.5px; text-transform: uppercase; font-family: 'DM Sans', sans-serif; }
 
-  /* ── Sidebar ── */
   .sidebar { width: var(--sidebar-w); background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
   .sidebar-logo { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
   .logo-texts { display: flex; flex-direction: column; }
@@ -128,10 +111,8 @@ const css = `
   .user-name { font-size: 13px; font-weight: 600; color: #fff; }
   .user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
 
-  /* ── Content ── */
   .content { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-  /* ── Topbar ── */
   .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
   .topbar-title { font-size: 18px; font-weight: 700; color: var(--navy); }
   .topbar-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
@@ -142,30 +123,31 @@ const css = `
   .topbar-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--navy); cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; flex-shrink: 0; }
   .topbar-avatar:hover { border-color: var(--yellow-dark); }
 
-  /* ── Body / Card ── */
   .body { padding: 44px 52px; display: flex; flex-direction: column; align-items: center; flex: 1; }
   .page-title { font-size: 20px; font-weight: 600; color: var(--navy); letter-spacing: 0.3px; margin-bottom: 28px; text-align: center; }
   .card { background: #fff; border-radius: 12px; padding: 52px 56px 48px; width: 100%; max-width: 800px; box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04); border: 1px solid var(--border); }
-  .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-  .field.full { width: 100%; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .row .field { margin-bottom: 20px; }
+  .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
   .label { font-size: 11px; font-weight: 600; color: var(--navy); letter-spacing: 0.8px; text-transform: uppercase; }
   .input { width: 100%; height: 52px; border: 1.5px solid var(--border); border-radius: 8px; padding: 0 16px; font-size: 14px; font-weight: 400; color: var(--navy); background: #f7f8fa; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
   .input::placeholder { color: #b0bac6; font-size: 13px; font-weight: 400; }
   .input:focus { border-color: var(--yellow); background: #fff; box-shadow: 0 0 0 3px rgba(241,187,19,0.12); }
-  .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 500; }
-  .alert-error { background: #fde8e8; color: #7f1d1d; border: 1px solid #fca5a5; }
-  .btn { width: 100%; height: 52px; background: var(--yellow); border: none; border-radius: 8px; font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #ffffff; text-transform: uppercase; cursor: pointer; margin-top: 8px; font-family: 'DM Sans', sans-serif; transition: background 0.15s, transform 0.1s; }
-  .btn:hover { background: var(--yellow-dark); transform: translateY(-1px); }
-  .btn:active { transform: translateY(0); }
-  .btn:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; transform: none; }
-  .btn-secondary { background: #f0f2f5; color: var(--navy); }
+  select.input { padding-right: 30px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2301233F' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; appearance: none; cursor: pointer; }
+
   .cep-row { display: grid; grid-template-columns: 1fr 120px; gap: 10px; }
   .btn-cep { height: 52px; border: none; border-radius: 8px; background: var(--navy); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity 0.15s; }
   .btn-cep:hover { opacity: 0.85; }
   .btn-cep:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-secondary:hover { background: #e2e6ea; transform: translateY(-1px); }
+
+  .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 500; }
+  .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .alert-error   { background: #fde8e8; color: #7f1d1d; border: 1px solid #fca5a5; }
+
+  .btn { width: 100%; height: 52px; background: var(--yellow); border: none; border-radius: 8px; font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #ffffff; text-transform: uppercase; cursor: pointer; margin-top: 8px; font-family: 'DM Sans', sans-serif; transition: background 0.15s, transform 0.1s; }
+  .btn:hover { background: var(--yellow-dark); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; transform: none; }
 
   @media (max-width: 900px) {
     :root { --sidebar-w: 0px; }
@@ -173,6 +155,7 @@ const css = `
     .body { padding: 32px 20px; }
     .card { padding: 32px 24px; }
     .row { grid-template-columns: 1fr; }
+    .cep-row { grid-template-columns: 1fr 100px; }
   }
 `;
 
@@ -187,53 +170,90 @@ export default function CadastroRotaPage() {
     start_point_cep: "",
     start_point: "",
     start_point_reference: "",
-    end_point: "",
     departure_time: "",
     school_id: "",
   });
-  const [errorMessage, setErrorMessage] = useState("");
-  const [loadingCep, setLoadingCep] = useState(false);
+  const [startOptions, setStartOptions] = useState<Array<{ address: string; lat: number; lng: number }>>([]);
+  const [selectedStartIndex, setSelectedStartIndex] = useState<string>("");
+  const [searchingCep, setSearchingCep] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
     fetchSchools({ per_page: 100 });
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    setErrorMessage("");
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setSubmitError(null);
+    setSubmitSuccess(false);
   };
 
+  // ── Máscara CEP: só números, máx 8 dígitos, formata 00000-000 ─────────────
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
     const masked = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
     setForm(prev => ({ ...prev, start_point_cep: masked }));
-    setErrorMessage("");
+    setSubmitError(null);
+    setSubmitSuccess(false);
   };
 
-  const handleCep = async () => {
-    if (!form.start_point_cep) return;
-    setLoadingCep(true);
-    await getAddressesByCep(form.start_point_cep);
-    setLoadingCep(false);
+  const handleSearchCep = async () => {
+    setSubmitError(null);
+    setSearchingCep(true);
+    try {
+      const options = await getAddressesByCep(form.start_point_cep);
+      setStartOptions(options);
+      setSelectedStartIndex("");
+      if (!options.length) setSubmitError("Não encontramos endereços para esse CEP.");
+    } catch (err: any) {
+      setSubmitError(err?.message || "Erro ao buscar endereços por CEP");
+      setStartOptions([]);
+    } finally {
+      setSearchingCep(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
+    setSubmitError(null);
+    setSubmitSuccess(false);
+    try {
+      const selectedStart = selectedStartIndex !== "" ? startOptions[Number(selectedStartIndex)] : null;
+      const selectedSchool = schools.find((school) => school.id === Number(form.school_id));
+      if (!selectedSchool) {
+        setSubmitError("Selecione a escola de parada final.");
+        return;
+      }
 
-    if (!form.name || !form.start_point_cep || !form.departure_time || !form.school_id) {
-    setErrorMessage("Preencha todos os campos obrigatórios");
-    return;
+      const payload = {
+        name: form.name,
+        school_id: selectedSchool.id,
+        start_point_cep: form.start_point_cep,
+        start_point: selectedStart?.address || form.start_point,
+        start_point_reference: form.start_point_reference,
+        start_point_lat: selectedStart?.lat,
+        start_point_lng: selectedStart?.lng,
+        end_point: selectedSchool.address,
+        end_point_lat: selectedSchool.lat || undefined,
+        end_point_lng: selectedSchool.lng || undefined,
+        departure_time: form.departure_time,
+      };
+
+      console.log('[CadastroRota] Payload completo:', payload);
+
+      await createRoute(payload);
+      setSubmitSuccess(true);
+      setForm({ name: "", start_point_cep: "", start_point: "", start_point_reference: "", departure_time: "", school_id: "" });
+      setStartOptions([]);
+      setSelectedStartIndex("");
+      setTimeout(() => router.push("/lista_rotas"), 2000);
+    } catch (err: any) {
+      const errorMessage = err?.response?.message || err?.message || "Erro ao cadastrar rota";
+      console.error('[CadastroRota] Erro detalhado:', { status: err?.status, message: errorMessage, details: err?.response?.errors });
+      setSubmitError(errorMessage);
     }
-
-    await createRoute({
-    ...form,
-    end_point: form.end_point,
-    school_id: Number(form.school_id),
-  });
-
-  router.push("/lista_rotas");
-};
+  };
 
   if (loading) {
     return (
@@ -263,33 +283,18 @@ export default function CadastroRotaPage() {
           </div>
           <nav className="sidebar-nav">
             <span className="nav-label">Principal</span>
-            <button className="nav-item" onClick={() => router.push("/dashboard")}>
-              <DashIconFilled /> Dashboard
-            </button>
-            <button className="nav-item" onClick={() => router.push("/visualizar_gastos")}>
-              <FinanceIconFilled /> Financeiro
-            </button>
+            <button className="nav-item" onClick={() => router.push("/dashboard")}><DashIconFilled /> Dashboard</button>
+            <button className="nav-item" onClick={() => router.push("/visualizar_gastos")}><FinanceIconFilled /> Financeiro</button>
             <span className="nav-label">Cadastros</span>
-            <button className="nav-item" onClick={() => router.push("/lista_onibus")}>
-              <BusFrontIcon /> Ônibus
-            </button>
-            <button className="nav-item active">
-              <RouteIconFilled /> Rotas
-            </button>
-            <button className="nav-item" onClick={() => router.push("/lista_motoristas")}>
-              <DriverIconFilled /> Motoristas
-            </button>
-            <button className="nav-item" onClick={() => router.push("/lista_escolas")}>
-              <SchoolIconFilled /> Escolas
-            </button>
+            <button className="nav-item" onClick={() => router.push("/lista_onibus")}><BusFrontIcon /> Ônibus</button>
+            <button className="nav-item active"><RouteIconFilled /> Rotas</button>
+            <button className="nav-item" onClick={() => router.push("/lista_motoristas")}><DriverIconFilled /> Motoristas</button>
+            <button className="nav-item" onClick={() => router.push("/lista_escolas")}><SchoolIconFilled /> Escolas</button>
           </nav>
           <div className="sidebar-footer">
             <button className="user-row" onClick={() => router.push("/perfil")}>
               <div className="avatar">A</div>
-              <div>
-                <div className="user-name">Admin</div>
-                <div className="user-role">Gestor</div>
-              </div>
+              <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
             <SidebarLogoutButton />
           </div>
@@ -304,8 +309,7 @@ export default function CadastroRotaPage() {
             </div>
             <div className="topbar-right">
               <button className="icon-btn" onClick={() => router.push("/notificacoes")} title="Notificações">
-                <BellIconFilled />
-                <span className="notif-dot" />
+                <BellIconFilled /><span className="notif-dot" />
               </button>
               <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">A</div>
             </div>
@@ -313,84 +317,107 @@ export default function CadastroRotaPage() {
 
           {/* ── Card ── */}
           <div className="body">
-            <h2 className="page-title">Cadastre uma nova rota</h2>
+            <h2 className="page-title">Cadastrar Nova Rota</h2>
             <div className="card">
-              {errorMessage && <div className="alert alert-error">{errorMessage}</div>}
+              {submitSuccess && <div className="alert alert-success">✓ Rota cadastrada com sucesso! Redirecionando...</div>}
+              {submitError   && <div className="alert alert-error">{submitError}</div>}
 
               <form onSubmit={handleSubmit}>
-
-                <div className="field full">
-                  <label className="label">Nome da Rota</label>
-                  <input
-                    type="text"
-                    className="input"
-                    name="name"
-                    placeholder="Ex: Rota Centro – Escola Municipal"
-                    value={form.name}
-                    onChange={handleChange}
-                  />
-                </div>
-
                 <div className="row">
                   <div className="field">
-                    <label className="label">CEP</label>
+                    <label className="label">Nome da Rota</label>
+                    <input
+                      type="text"
+                      name="name"
+                      className="input"
+                      placeholder="Ex: Ingá"
+                      value={form.name}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="field">
+                    <label className="label">CEP da Região de Saída</label>
                     <div className="cep-row">
                       <input
                         type="text"
-                        className="input"
                         name="start_point_cep"
-                        placeholder="Ex: 62900-000"
+                        className="input"
+                        placeholder="Ex: 58000-000"
                         value={form.start_point_cep}
                         onChange={handleCepChange}
                         maxLength={9}
                         inputMode="numeric"
+                        required
                       />
                       <button
                         type="button"
                         className="btn-cep"
-                        onClick={handleCep}
-                        disabled={loadingCep || !form.start_point_cep}
+                        onClick={handleSearchCep}
+                        disabled={searchingCep || !form.start_point_cep}
                       >
-                        {loadingCep ? "..." : "Buscar"}
+                        {searchingCep ? "..." : "Buscar"}
                       </button>
                     </div>
                   </div>
                 </div>
 
-                <div className="field full">
-                  <label className="label">Referência</label>
-                  <input
-                    type="text"
-                    className="input"
-                    name="start_point_reference"
-                    placeholder="Ex: Próximo à praça central"
-                    value={form.start_point_reference}
-                    onChange={handleChange}
-                  />
+                <div className="row">
+                  <div className="field">
+                    <label className="label">Endereço de Saída</label>
+                    <select
+                      className="input"
+                      value={selectedStartIndex}
+                      onChange={(e) => {
+                        const idx = e.target.value;
+                        setSelectedStartIndex(idx);
+                        if (idx !== "") setForm(prev => ({ ...prev, start_point: startOptions[Number(idx)].address }));
+                      }}
+                      required
+                    >
+                      <option value="">Selecione um endereço</option>
+                      {startOptions.map((option, index) => (
+                        <option key={`${option.address}-${index}`} value={index}>{option.address}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label className="label">Ponto de Referência (Saída)</label>
+                    <input
+                      type="text"
+                      name="start_point_reference"
+                      className="input"
+                      placeholder="Ex: Próximo ao mercado X"
+                      value={form.start_point_reference}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
 
                 <div className="row">
                   <div className="field">
-                    <label className="label">Horário de Partida</label>
+                    <label className="label">Horário de Saída</label>
                     <input
                       type="time"
-                      className="input"
                       name="departure_time"
+                      className="input"
                       value={form.departure_time}
                       onChange={handleChange}
+                      required
                     />
                   </div>
                   <div className="field">
-                    <label className="label">Escola</label>
+                    <label className="label">Parada Final (Escola)</label>
                     <select
                       className="input"
                       name="school_id"
                       value={form.school_id}
                       onChange={handleChange}
+                      required
                     >
                       <option value="">Selecione uma escola</option>
-                      {schools.map((s) => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
+                      {schools.map((school) => (
+                        <option key={school.id} value={String(school.id)}>{school.name} - {school.address}</option>
                       ))}
                     </select>
                   </div>
@@ -399,7 +426,6 @@ export default function CadastroRotaPage() {
                 <button type="submit" className="btn" disabled={loading}>
                   {loading ? "Cadastrando..." : "Cadastrar Rota"}
                 </button>
-
               </form>
             </div>
           </div>
