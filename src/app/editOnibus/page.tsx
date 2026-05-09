@@ -80,6 +80,7 @@ function BellIconFilled({ size = 19, color = "currentColor" }: { size?: number; 
   );
 }
 
+// ─── CSS ─────────────────────────────────────────────────────────────────────
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -91,6 +92,29 @@ const css = `
   body { font-family: 'DM Sans', sans-serif; font-weight: 400; }
   .layout { display: flex; min-height: 100vh; background: var(--bg); }
 
+  /* ── Loading ── */
+  .loading-screen {
+    position: fixed; inset: 0;
+    background: #01233F;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px; z-index: 9999;
+  }
+  .loading-spinner {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 2.5px solid rgba(241,187,19,0.15);
+    border-top-color: #f1bb13;
+    animation: spin 0.8s cubic-bezier(0.4,0,0.2,1) infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-label {
+    font-size: 14px; font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── Sidebar ── */
   .sidebar { width: var(--sidebar-w); background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
   .sidebar-logo { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
   .logo-texts { display: flex; flex-direction: column; }
@@ -108,8 +132,10 @@ const css = `
   .user-name { font-size: 13px; font-weight: 600; color: #fff; }
   .user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
 
+  /* ── Content ── */
   .content { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
+  /* ── Topbar ── */
   .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
   .topbar-title { font-size: 18px; font-weight: 700; color: var(--navy); }
   .topbar-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
@@ -120,7 +146,7 @@ const css = `
   .topbar-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--navy); cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; flex-shrink: 0; }
   .topbar-avatar:hover { border-color: var(--yellow-dark); }
 
-  /* ── card de edição — intocado ── */
+  /* ── Card de edição — INTOCADO ── */
   .body { padding: 44px 52px; display: flex; flex-direction: column; align-items: center; flex: 1; }
   .page-title { font-size: 20px; font-weight: 600; color: var(--navy); letter-spacing: 0.3px; margin-bottom: 28px; text-align: center; }
   .card { background: #fff; border-radius: 12px; padding: 52px 56px 48px; width: 100%; max-width: 800px; box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04); border: 1px solid var(--border); }
@@ -213,11 +239,16 @@ export default function EditarOnibus() {
     }
   };
 
+  // ── Loading screen padrão ──────────────────────────────────────────────────
   if (loadingData) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>
-        Carregando dados do veículo...
-      </div>
+      <>
+        <style dangerouslySetInnerHTML={{ __html: css }} />
+        <div className="loading-screen">
+          <div className="loading-spinner" />
+          <span className="loading-label">Carregando</span>
+        </div>
+      </>
     );
   }
 
@@ -225,6 +256,8 @@ export default function EditarOnibus() {
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className="layout">
+
+        {/* ── Sidebar ── */}
         <aside className="sidebar">
           <div className="sidebar-logo">
             <BusSideIcon size={28} />
@@ -253,6 +286,7 @@ export default function EditarOnibus() {
         </aside>
 
         <div className="content">
+          {/* ── Topbar ── */}
           <header className="topbar">
             <div>
               <div className="topbar-title">Editar Ônibus</div>
@@ -266,6 +300,7 @@ export default function EditarOnibus() {
             </div>
           </header>
 
+          {/* ── Card — INTOCADO ── */}
           <div className="body">
             <h2 className="page-title">Editar ônibus</h2>
             <div className="card">
