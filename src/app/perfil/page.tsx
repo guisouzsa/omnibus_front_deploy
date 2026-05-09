@@ -32,161 +32,47 @@ const css = `
     background: #f8f9fb;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    gap: 0; z-index: 9999;
+    gap: 24px; z-index: 9999;
   }
   @media (prefers-color-scheme: dark) {
     .p-loading-screen { background: #0c1c2e; }
   }
-
   .p-loading-card {
     display: flex; flex-direction: column;
-    align-items: center; gap: 0;
+    align-items: center; gap: 20px;
   }
-
-  /* Marca no topo */
   .p-loading-brand {
-    display: flex; align-items: center; gap: 0;
-    margin-bottom: 40px;
-  }
-  .p-loading-brand-name {
-    font-size: 22px; font-weight: 800;
-    color: #01233F; letter-spacing: -0.5px;
+    font-size: 15px; font-weight: 700;
+    color: #01233F; letter-spacing: -0.2px;
+    opacity: 0.5;
   }
   @media (prefers-color-scheme: dark) {
-    .p-loading-brand-name { color: #ffffff; }
+    .p-loading-brand { color: #ffffff; }
   }
-  .p-loading-brand-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #f1bb13; margin-left: 3px;
-    margin-bottom: 12px; flex-shrink: 0;
+  .p-loading-bus-svg {
+    animation: bus-rock 2s ease-in-out infinite;
   }
-
-  /* Ônibus maior */
-  .p-bus-loader {
-    position: relative;
-    width: 140px; height: 84px;
-    animation: bus-bounce 1.4s ease-in-out infinite;
-    margin-bottom: 0;
+  @keyframes bus-rock {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-3px) rotate(-0.4deg); }
+    75% { transform: translateY(-1px) rotate(0.3deg); }
   }
-  @keyframes bus-bounce {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
+  .p-loading-bar {
+    width: 80px; height: 2px;
+    background: #e2e6ea; border-radius: 2px;
+    overflow: hidden; position: relative;
   }
-
-  .p-bus-body {
-    position: absolute; bottom: 14px; left: 0; right: 0;
-    height: 50px; background: #f1bb13;
-    border-radius: 8px 16px 6px 6px;
+  @media (prefers-color-scheme: dark) {
+    .p-loading-bar { background: rgba(255,255,255,0.1); }
   }
-  .p-bus-stripe {
-    position: absolute;
-    left: 0; right: 0;
-    height: 7px; background: #01233F;
-    bottom: 44px;
-  }
-  .p-bus-roof {
-    position: absolute; bottom: 60px; left: 14px; right: 8px;
-    height: 26px; background: #f1bb13;
-    border-radius: 7px 14px 0 0;
-  }
-  .p-bus-windows {
-    position: absolute; bottom: 65px; left: 24px;
-    display: flex; gap: 12px;
-  }
-  .p-bus-window {
-    width: 18px; height: 14px;
-    background: #01233F; border-radius: 3px;
-    opacity: 0.7;
-    animation: window-blink 3s ease-in-out infinite;
-  }
-  .p-bus-window:nth-child(2) { animation-delay: 0.5s; }
-  .p-bus-window:nth-child(3) { animation-delay: 1s; }
-  @keyframes window-blink {
-    0%, 88%, 100% { opacity: 0.7; }
-    93% { opacity: 0.15; }
-  }
-  .p-bus-door {
-    position: absolute; bottom: 14px; right: 18px;
-    width: 16px; height: 28px;
-    background: #01233F; border-radius: 3px 3px 0 0;
-    opacity: 0.35;
-  }
-  .p-bus-front {
-    position: absolute; bottom: 14px; left: 0;
-    width: 20px; height: 50px;
-    background: #daa000;
-    border-radius: 8px 0 0 6px;
-  }
-  .p-bus-headlight {
-    position: absolute; bottom: 30px; left: 3px;
-    width: 10px; height: 7px;
-    background: #fffde7; border-radius: 2px;
-    box-shadow: 0 0 10px 3px rgba(255,248,100,0.55);
-    animation: headlight 1.8s ease-in-out infinite;
-  }
-  @keyframes headlight {
-    0%, 100% { opacity: 1; box-shadow: 0 0 10px 3px rgba(255,248,100,0.55); }
-    50% { opacity: 0.65; box-shadow: 0 0 18px 5px rgba(255,248,100,0.3); }
-  }
-  .p-bus-wheel-l, .p-bus-wheel-r {
-    position: absolute; bottom: 0;
-    width: 26px; height: 26px;
-    background: #1a2535; border-radius: 50%;
-    border: 4px solid #3d4f63;
-    animation: spin 0.45s linear infinite;
-  }
-  .p-bus-wheel-l { left: 18px; }
-  .p-bus-wheel-r { right: 18px; }
-  .p-bus-wheel-l::after, .p-bus-wheel-r::after {
+  .p-loading-bar::after {
     content: '';
-    position: absolute; inset: 3px;
-    border-radius: 50%;
-    border-top: 2px solid rgba(255,255,255,0.18);
+    position: absolute; left: -60%;
+    width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, #f1bb13, transparent);
+    animation: bar-slide 1.4s ease-in-out infinite;
   }
-  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-  /* Estrada */
-  .p-road-wrap { width: 180px; margin-top: 2px; margin-bottom: 36px; }
-  .p-road {
-    width: 100%; height: 3px;
-    background: #dde1e7;
-    border-radius: 4px;
-    position: relative; overflow: hidden;
-  }
-  @media (prefers-color-scheme: dark) {
-    .p-road { background: rgba(255,255,255,0.08); }
-  }
-  .p-road::after {
-    content: '';
-    position: absolute; left: -55%;
-    width: 55%; height: 100%;
-    background: linear-gradient(90deg, transparent, #f1bb13 50%, transparent);
-    animation: road 1s ease-in-out infinite;
-  }
-  @keyframes road { from { left: -55%; } to { left: 110%; } }
-
-  /* Texto + dots */
-  .p-loading-label {
-    font-size: 11px; font-weight: 700;
-    color: #9ca3af;
-    letter-spacing: 3px; text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-  @media (prefers-color-scheme: dark) {
-    .p-loading-label { color: rgba(255,255,255,0.35); }
-  }
-  .p-loading-dots { display: flex; gap: 6px; align-items: center; }
-  .p-loading-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #f1bb13;
-    animation: dot-pulse 1.2s ease-in-out infinite;
-  }
-  .p-loading-dot:nth-child(2) { animation-delay: 0.2s; }
-  .p-loading-dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes dot-pulse {
-    0%, 80%, 100% { transform: scale(0.55); opacity: 0.35; }
-    40% { transform: scale(1); opacity: 1; }
-  }
+  @keyframes bar-slide { from { left: -60%; } to { left: 110%; } }
 
   /* ── LAYOUT ── */
   .p-page { min-height: 100vh; background: var(--bg); font-family: 'DM Sans', sans-serif; display: flex; }
@@ -254,7 +140,13 @@ const css = `
   .p-topbar-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   /* ── MAIN ── */
-  .p-main { padding: 40px 40px; display: flex; justify-content: center; }
+  .p-main {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   /* ── CARD ── */
   .p-card {
@@ -429,41 +321,40 @@ function LoadingScreen() {
     <div className="p-loading-screen">
       <div className="p-loading-card">
 
-        {/* Marca */}
-        <div className="p-loading-brand">
-          <span className="p-loading-brand-name">Omnibus</span>
-          <span className="p-loading-brand-dot" />
-        </div>
+        <svg
+          className="p-loading-bus-svg"
+          width="120" height="80"
+          viewBox="0 0 120 80"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Corpo */}
+          <rect x="8" y="20" width="104" height="44" rx="6" fill="#f1bb13"/>
+          {/* Faixa navy */}
+          <rect x="8" y="38" width="104" height="8" fill="#01233F"/>
+          {/* Teto */}
+          <rect x="16" y="10" width="88" height="14" rx="5" fill="#f1bb13"/>
+          {/* Frente */}
+          <rect x="8" y="20" width="14" height="44" rx="4" fill="#e0a800"/>
+          {/* Para-brisa */}
+          <rect x="10" y="22" width="10" height="14" rx="2" fill="#bde0ff" opacity="0.7"/>
+          {/* Farol */}
+          <rect x="10" y="38" width="8" height="5" rx="2" fill="#fffde7"/>
+          {/* Janelas */}
+          <rect x="28" y="22" width="18" height="13" rx="3" fill="#01233F" opacity="0.6"/>
+          <rect x="52" y="22" width="18" height="13" rx="3" fill="#01233F" opacity="0.6"/>
+          <rect x="76" y="22" width="18" height="13" rx="3" fill="#01233F" opacity="0.6"/>
+          {/* Porta */}
+          <rect x="96" y="36" width="12" height="28" rx="2" fill="#01233F" opacity="0.25"/>
+          {/* Rodas */}
+          <circle cx="30" cy="68" r="10" fill="#1a2535"/>
+          <circle cx="30" cy="68" r="5" fill="#3d4f63"/>
+          <circle cx="90" cy="68" r="10" fill="#1a2535"/>
+          <circle cx="90" cy="68" r="5" fill="#3d4f63"/>
+        </svg>
 
-        {/* Ônibus */}
-        <div className="p-bus-loader">
-          <div className="p-bus-roof" />
-          <div className="p-bus-windows">
-            <div className="p-bus-window" />
-            <div className="p-bus-window" />
-            <div className="p-bus-window" />
-          </div>
-          <div className="p-bus-stripe" />
-          <div className="p-bus-body" />
-          <div className="p-bus-front" />
-          <div className="p-bus-headlight" />
-          <div className="p-bus-door" />
-          <div className="p-bus-wheel-l" />
-          <div className="p-bus-wheel-r" />
-        </div>
-
-        {/* Estrada */}
-        <div className="p-road-wrap">
-          <div className="p-road" />
-        </div>
-
-        {/* Texto */}
-        <span className="p-loading-label">Carregando</span>
-        <div className="p-loading-dots">
-          <div className="p-loading-dot" />
-          <div className="p-loading-dot" />
-          <div className="p-loading-dot" />
-        </div>
+        <div className="p-loading-bar" />
+        <span className="p-loading-brand">Omnibus</span>
 
       </div>
     </div>
@@ -561,7 +452,16 @@ export default function PerfilPage() {
         <aside className="p-sidebar">
           <div className="p-sidebar-logo">
             <div>
-              <div className="p-logo-text">Omnibus</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div className="p-logo-text">Omnibus</div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="5" width="20" height="13" rx="2"/>
+                  <path d="M2 10h20"/>
+                  <circle cx="7" cy="20" r="1.5" fill="rgba(255,255,255,0.35)" stroke="none"/>
+                  <circle cx="17" cy="20" r="1.5" fill="rgba(255,255,255,0.35)" stroke="none"/>
+                  <path d="M5 18h14"/>
+                </svg>
+              </div>
               <div className="p-logo-sub">Gestão Escolar</div>
             </div>
           </div>
