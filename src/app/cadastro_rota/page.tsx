@@ -199,6 +199,14 @@ export default function CadastroRotaPage() {
     setErrorMessage("");
   };
 
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Só números, máx 8 dígitos, formata como 00000-000
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+    const masked = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+    setForm(prev => ({ ...prev, start_point_cep: masked }));
+    setErrorMessage("");
+  };
+
   const handleCep = async () => {
     if (!form.start_point_cep) return;
     setLoadingCep(true);
@@ -308,7 +316,9 @@ export default function CadastroRotaPage() {
                       name="start_point_cep"
                       placeholder="Ex: 62900-000"
                       value={form.start_point_cep}
-                      onChange={handleChange}
+                      onChange={handleCepChange}
+                      maxLength={9}
+                      inputMode="numeric"
                     />
                   </div>
                   <div className="field" style={{ justifyContent: "flex-end" }}>
