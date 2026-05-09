@@ -32,59 +32,24 @@ const css = `
     background: #01233F;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    gap: 32px; z-index: 9999;
+    gap: 20px; z-index: 9999;
   }
 
-  .p-loading-card {
-    display: flex; flex-direction: column;
-    align-items: center; gap: 24px;
+  .p-loading-spinner {
+    width: 48px; height: 48px;
+    border: 4px solid rgba(241,187,19,0.2);
+    border-top-color: #f1bb13;
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
   }
 
-  .p-loading-icon {
-    width: 72px; height: 72px;
-    background: #f1bb13;
-    border-radius: 20px;
-    display: flex; align-items: center; justify-content: center;
-    animation: icon-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes icon-pulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(241,187,19,0.4); }
-    50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(241,187,19,0); }
-  }
-
-  .p-loading-texts {
-    display: flex; flex-direction: column;
-    align-items: center; gap: 8px;
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
   .p-loading-title {
-    font-size: 28px; font-weight: 800;
-    color: #ffffff; letter-spacing: -0.5px;
-  }
-
-  .p-loading-subtitle {
-    font-size: 14px; font-weight: 500;
-    color: rgba(255,255,255,0.5); letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  .p-loading-dots {
-    display: flex; gap: 6px; align-items: center;
-    margin-top: 8px;
-  }
-
-  .p-loading-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%; background: #f1bb13;
-    animation: dot-bounce 1.4s ease-in-out infinite;
-  }
-  .p-loading-dot:nth-child(2) { animation-delay: 0.2s; }
-  .p-loading-dot:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes dot-bounce {
-    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-    40% { transform: scale(1); opacity: 1; }
+    font-size: 18px; font-weight: 700;
+    color: #ffffff; letter-spacing: 0.5px;
   }
 
   /* ── LAYOUT ── */
@@ -185,29 +150,20 @@ const getPhotoUrl = (photoPath: string | null): string | null => {
   return `${apiBaseUrl}${pathWithSlash}?t=${Date.now()}`;
 };
 
+// Ícone de ônibus filled — mesmo usado nos nav-items
+function BusIcon({ size = 17, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 6.5A3.5 3.5 0 0 1 7.5 3h9A3.5 3.5 0 0 1 20 6.5V15a2 2 0 0 1-1 1.732V18a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-.5H8V18a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1.268A2 2 0 0 1 4 15V6.5zM7.5 5A1.5 1.5 0 0 0 6 6.5V9h12V6.5A1.5 1.5 0 0 0 16.5 5h-9zM6 11v2h12v-2H6zm1.5 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+    </svg>
+  );
+}
+
 function LoadingScreen() {
   return (
     <div className="p-loading-screen">
-      <div className="p-loading-card">
-        <div className="p-loading-icon">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#01233F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="4" width="20" height="14" rx="2"/>
-            <path d="M2 9h20"/>
-            <circle cx="7" cy="20" r="2" fill="#01233F" stroke="#01233F"/>
-            <circle cx="17" cy="20" r="2" fill="#01233F" stroke="#01233F"/>
-            <path d="M5 18h14"/>
-          </svg>
-        </div>
-        <div className="p-loading-texts">
-          <div className="p-loading-title">Carregando</div>
-          <div className="p-loading-subtitle">Omnibus</div>
-          <div className="p-loading-dots">
-            <div className="p-loading-dot" />
-            <div className="p-loading-dot" />
-            <div className="p-loading-dot" />
-          </div>
-        </div>
-      </div>
+      <div className="p-loading-spinner" />
+      <div className="p-loading-title">Carregando</div>
     </div>
   );
 }
@@ -305,63 +261,52 @@ export default function PerfilPage() {
               <div className="p-logo-text">Omnibus</div>
               <div className="p-logo-sub">Gestão Escolar</div>
             </div>
+            {/* Logo icon — mesmo ônibus filled, amarelo */}
             <div className="p-logo-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#01233F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 9h20"/>
-                <circle cx="7" cy="20" r="2" fill="#01233F" stroke="#01233F"/>
-                <circle cx="17" cy="20" r="2" fill="#01233F" stroke="#01233F"/>
-                <path d="M5 18h14"/>
-              </svg>
+              <BusIcon size={18} color="#01233F" />
             </div>
           </div>
           <nav className="p-sidebar-nav">
             <span className="p-nav-label">Principal</span>
             <button className="p-nav-item" onClick={() => router.push("/dashboard")}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"/>
               </svg>
               Dashboard
             </button>
             <button className="p-nav-item" onClick={() => router.push("/visualizar_gastos")}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2a1 1 0 0 1 1 1v1.07C16.39 4.56 19 6.58 19 9c0 .55-.45 1-1 1s-1-.45-1-1c0-1.3-2.06-2.5-5-2.5S7 7.7 7 9s2.06 2.5 5 2.5c3.87 0 6 1.93 6 4.5 0 2.42-2.61 4.44-6 4.93V22a1 1 0 1 1-2 0v-1.07C6.61 20.44 4 18.42 4 16c0-.55.45-1 1-1s1 .45 1 1c0 1.3 2.06 2.5 5 2.5s5-1.2 5-2.5-2.06-2.5-5-2.5c-3.87 0-6-1.93-6-4.5C5 6.58 7.61 4.56 11 4.07V3a1 1 0 0 1 1-1z"/>
               </svg>
               Financeiro
             </button>
             <span className="p-nav-label">Cadastros</span>
             <button className="p-nav-item" onClick={() => router.push("/lista_onibus")}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 9h20"/>
-                <circle cx="7" cy="20" r="2"/><circle cx="17" cy="20" r="2"/><path d="M5 18h14"/>
-              </svg>
+              <BusIcon size={17} color="currentColor" />
               Ônibus
             </button>
             <button className="p-nav-item" onClick={() => router.push("/lista_rotas")}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-                <circle cx="12" cy="9" r="2.5"/>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/>
               </svg>
               Rotas
             </button>
             <button className="p-nav-item" onClick={() => router.push("/lista_motoristas")}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="7" r="4"/>
+                <path d="M5 21a7 7 0 0 1 14 0H5z"/>
               </svg>
               Motoristas
             </button>
             <button className="p-nav-item" onClick={() => router.push("/lista_escolas")}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+                <path d="M5 13.18V17c0 2.21 3.13 4 7 4s7-1.79 7-4v-3.82l-7 3.82-7-3.82z"/>
               </svg>
               Escolas
-            </button>
-            <button className="p-nav-item" onClick={() => router.push("/instrucoes")}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 2H6a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h13a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zm-7 14H8a1 1 0 1 1 0-2h4a1 1 0 1 1 0 2zm4-4H8a1 1 0 1 1 0-2h8a1 1 0 1 1 0 2zm0-4H8a1 1 0 0 1 0-2h8a1 1 0 0 1 0 2z"/>
-              </svg>
-              Instruções
             </button>
           </nav>
           <div className="p-sidebar-footer">
