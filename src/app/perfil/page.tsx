@@ -6,7 +6,7 @@ import { apiClient } from "@/lib/api-client";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 const css = `
-  .p-page { min-height: 100vh; background: #fff; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; display: flex; }
+  .p-page { min-height: 100vh; background: #f0f2f5; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; display: flex; }
   .p-sidebar { width: 220px; background: #01233F; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
   .p-sidebar-logo { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
   .p-logo-icon { width: 34px; height: 34px; background: #f1bb13; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -31,29 +31,215 @@ const css = `
   .p-icon-btn { width: 38px; height: 38px; border-radius: 8px; border: 1px solid #e2e6ea; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #01233F; transition: all 0.15s; position: relative; }
   .p-icon-btn:hover { background: #f0f2f5; }
   .p-notif-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: #ef4444; border-radius: 50%; border: 1.5px solid #fff; }
-  .p-main { padding: 32px 40px; display: flex; justify-content: center; }
-  .p-card { background: #fff; border-radius: 8px; border: 1px solid #e8e8e8; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 60px; max-width: 1100px; width: 100%; }
-  .p-card-header { display: flex; gap: 80px; align-items: flex-start; margin-bottom: 32px; }
-  .p-avatar-section { display: flex; flex-direction: column; align-items: center; gap: 20px; flex-shrink: 0; }
-  .p-avatar-large { width: 240px; height: 240px; background: #f5f5f5; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid #f1bb13; }
+
+  /* ── MAIN ── */
+  .p-main { padding: 36px 40px; display: flex; justify-content: center; }
+
+  /* ── CARD ── */
+  .p-card {
+    background: #fff;
+    border-radius: 6px;
+    border: 1.5px solid #e2e6ea;
+    box-shadow: 0 2px 12px rgba(1,35,63,0.07);
+    max-width: 860px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* banner topo do card */
+  .p-card-banner {
+    background: #01233F;
+    height: 90px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 36px 0;
+  }
+  .p-card-banner-accent {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      rgba(241,187,19,0.04) 0px,
+      rgba(241,187,19,0.04) 1px,
+      transparent 1px,
+      transparent 12px
+    );
+  }
+  .p-card-banner-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: #f1bb13;
+  }
+
+  /* avatar flutuando sobre o banner */
+  .p-avatar-float {
+    position: relative;
+    z-index: 2;
+    margin-bottom: -44px;
+  }
+  .p-avatar-large {
+    width: 88px;
+    height: 88px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 3px solid #f1bb13;
+    box-shadow: 0 4px 16px rgba(1,35,63,0.18);
+  }
   .p-avatar-large img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .p-avatar-placeholder { color: #999; font-size: 14px; text-align: center; }
-  .p-btn-edit { background: #f1bb13; color: #fff; border: none; border-radius: 4px; padding: 12px 28px; font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer; transition: background 0.15s; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+  .p-avatar-placeholder { color: #bbb; font-size: 11px; text-align: center; }
+
+  /* corpo do card */
+  .p-card-body {
+    padding: 60px 36px 36px;
+  }
+
+  /* linha topo: nome + botões */
+  .p-profile-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    gap: 16px;
+  }
+  .p-profile-name {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a2535;
+    letter-spacing: -0.3px;
+  }
+  .p-profile-role {
+    font-size: 12px;
+    color: #6b7a8d;
+    margin-top: 3px;
+    font-weight: 500;
+  }
+  .p-btn-group { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .p-btn-edit {
+    background: #f1bb13;
+    color: #01233F;
+    border: none;
+    border-radius: 4px;
+    padding: 9px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
   .p-btn-edit:hover { background: #dba900; }
-  .p-form-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
-  .p-form-group { display: flex; flex-direction: column; }
-  .p-label { font-size: 13px; font-weight: 900; color: #01233F; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; }
-  .p-input { border: 1px solid #e0e0e0; background: #f9f9f9; padding: 14px 14px; border-radius: 4px; font-size: 15px; color: #1a1a1a; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; font-weight: 500; }
-  .p-input:focus { outline: none; background: #fff; border: 2px solid #f1bb13; color: #01233F; }
-  .p-input:disabled { background: #f5f5f5; color: #555; cursor: not-allowed; }
-  .p-btn-save { background: #01233F; color: #fff; border: none; border-radius: 4px; padding: 14px 32px; font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer; transition: background 0.15s; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; margin-top: 24px; }
-  .p-btn-save:hover { background: #000; }
+
+  .p-btn-cancel {
+    background: #fff;
+    color: #6b7a8d;
+    border: 1.5px solid #d1d5db;
+    border-radius: 4px;
+    padding: 9px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .p-btn-cancel:hover { border-color: #adb5bd; color: #1a2535; }
+
+  .p-btn-photo {
+    background: rgba(241,187,19,0.1);
+    color: #01233F;
+    border: 1.5px solid rgba(241,187,19,0.4);
+    border-radius: 4px;
+    padding: 9px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .p-btn-photo:hover { background: rgba(241,187,19,0.2); }
+
+  /* divider */
+  .p-divider { height: 1px; background: #e2e6ea; margin: 0 0 24px; }
+
+  /* grid de campos */
+  .p-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .p-form-group { display: flex; flex-direction: column; gap: 6px; }
+  .p-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #9ca3af;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .p-input {
+    border: 1.5px solid #e2e6ea;
+    background: #f8f9fb;
+    padding: 11px 14px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #1a2535;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    transition: all 0.15s;
+    outline: none;
+  }
+  .p-input:focus { background: #fff; border-color: #f1bb13; box-shadow: 0 0 0 3px rgba(241,187,19,0.1); }
+  .p-input:disabled { background: #f8f9fb; color: #6b7a8d; cursor: not-allowed; border-color: #e2e6ea; }
+
+  /* botão salvar */
+  .p-btn-save {
+    background: #01233F;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 11px 28px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin-top: 24px;
+  }
+  .p-btn-save:hover { background: #001829; }
+  .p-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* tag de status */
+  .p-status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #16a34a;
+    padding: 3px 8px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .p-status-dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
+
   @media (max-width: 1024px) {
     .p-main { padding: 20px 16px; }
     .p-navbar { padding: 0 16px; }
-    .p-card { padding: 24px; }
-    .p-card-header { flex-direction: column; align-items: center; }
     .p-form-grid { grid-template-columns: 1fr; }
+    .p-card-body { padding: 56px 20px 24px; }
+    .p-card-banner { padding: 0 20px; }
   }
 `;
 
@@ -85,10 +271,7 @@ export default function PerfilPage() {
         const userData = normalizeUser(resp);
         setUser(userData);
         setImageError(false);
-        setForm({
-          institution: userData.institution || "",
-          email: userData.email || "",
-        });
+        setForm({ institution: userData.institution || "", email: userData.email || "" });
       } catch (err) {
         console.error("Erro ao carregar user:", err);
       } finally {
@@ -114,16 +297,10 @@ export default function PerfilPage() {
       if (form.institution) fd.append("institution", form.institution);
       if (form.email) fd.append("email", form.email);
       if (file) fd.append("profile_photo", file);
-
       const resp = await apiClient.post("/api/user/profile", fd, { isFormData: true });
       const updatedUser = normalizeUser(resp);
-
       setUser(updatedUser);
-      setForm({
-        institution: updatedUser.institution || "",
-        email: updatedUser.email || "",
-      });
-
+      setForm({ institution: updatedUser.institution || "", email: updatedUser.email || "" });
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
       setFile(null);
@@ -143,10 +320,7 @@ export default function PerfilPage() {
     setPreviewUrl(null);
     setFile(null);
     setImageError(false);
-    setForm({
-      institution: user?.institution || "",
-      email: user?.email || "",
-    });
+    setForm({ institution: user?.institution || "", email: user?.email || "" });
   };
 
   const photoUrl = previewUrl ?? (user?.profile_photo ? getPhotoUrl(user.profile_photo) : null);
@@ -159,7 +333,7 @@ export default function PerfilPage() {
           <div className="p-sidebar-logo">
             <div className="p-logo-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#01233F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 9h20"/><path d="M8 4V2"/><path d="M16 4V2"/>
+                <rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 9h20"/>
                 <circle cx="7" cy="20" r="2" fill="#01233F" stroke="#01233F"/><circle cx="17" cy="20" r="2" fill="#01233F" stroke="#01233F"/><path d="M5 18h14"/>
               </svg>
             </div>
@@ -258,8 +432,12 @@ export default function PerfilPage() {
 
           <main className="p-main">
             <div className="p-card">
-              <div className="p-card-header">
-                <div className="p-avatar-section">
+
+              {/* Banner topo */}
+              <div className="p-card-banner">
+                <div className="p-card-banner-accent" />
+                <div className="p-card-banner-bar" />
+                <div className="p-avatar-float">
                   <div className="p-avatar-large">
                     {photoUrl && !imageError ? (
                       <img
@@ -272,58 +450,73 @@ export default function PerfilPage() {
                       <div className="p-avatar-placeholder">Sem foto</div>
                     )}
                   </div>
-
-                  {!editing ? (
-                    <button className="p-btn-edit" onClick={() => setEditing(true)}>Editar</button>
-                  ) : (
-                    <>
-                      <button className="p-btn-edit" onClick={() => document.getElementById("file-input")?.click()}>
-                        Selecionar Foto
-                      </button>
-                      <button className="p-btn-edit" style={{ background: "#6b7a8d" }} onClick={handleCancelEdit}>
-                        Cancelar
-                      </button>
-                    </>
-                  )}
-
-                  <input
-                    id="file-input"
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={handleFileChange}
-                  />
                 </div>
+              </div>
 
-                <div style={{ flex: 1 }}>
-                  <div className="p-form-grid">
-                    <div className="p-form-group">
-                      <label className="p-label">Instituição</label>
-                      <input
-                        type="text"
-                        className="p-input"
-                        value={form.institution}
-                        onChange={(e) => setForm({ ...form, institution: e.target.value })}
-                        disabled={!editing}
-                      />
-                    </div>
-                    <div className="p-form-group">
-                      <label className="p-label">Email</label>
-                      <input
-                        type="email"
-                        className="p-input"
-                        value={form.email}
-                        onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        disabled={!editing}
-                      />
+              {/* Corpo */}
+              <div className="p-card-body">
+
+                <div className="p-profile-top">
+                  <div>
+                    <div className="p-profile-name">{user?.institution || user?.name || "Instituição"}</div>
+                    <div className="p-profile-role">Gestor · Omnibus</div>
+                    <div className="p-status-tag">
+                      <span className="p-status-dot" />
+                      Conta ativa
                     </div>
                   </div>
-                  {editing && (
-                    <button className="p-btn-save" onClick={handleSave} disabled={saving}>
-                      {saving ? "Salvando..." : "Salvar"}
-                    </button>
-                  )}
+                  <div className="p-btn-group">
+                    {!editing ? (
+                      <button className="p-btn-edit" onClick={() => setEditing(true)}>Editar perfil</button>
+                    ) : (
+                      <>
+                        <button className="p-btn-photo" onClick={() => document.getElementById("file-input")?.click()}>
+                          Trocar foto
+                        </button>
+                        <button className="p-btn-cancel" onClick={handleCancelEdit}>Cancelar</button>
+                      </>
+                    )}
+                  </div>
                 </div>
+
+                <div className="p-divider" />
+
+                <div className="p-form-grid">
+                  <div className="p-form-group">
+                    <label className="p-label">Instituição</label>
+                    <input
+                      type="text"
+                      className="p-input"
+                      value={form.institution}
+                      onChange={(e) => setForm({ ...form, institution: e.target.value })}
+                      disabled={!editing}
+                    />
+                  </div>
+                  <div className="p-form-group">
+                    <label className="p-label">Email</label>
+                    <input
+                      type="email"
+                      className="p-input"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      disabled={!editing}
+                    />
+                  </div>
+                </div>
+
+                {editing && (
+                  <button className="p-btn-save" onClick={handleSave} disabled={saving}>
+                    {saving ? "Salvando..." : "Salvar alterações"}
+                  </button>
+                )}
+
+                <input
+                  id="file-input"
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
               </div>
             </div>
           </main>
