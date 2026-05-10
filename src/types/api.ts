@@ -217,6 +217,7 @@ export interface UpdateSchoolRequest {
 
 export interface CreateRouteRequest {
   name: string;
+  driver_id: number;
   school_id?: number;
   start_point: string;
   start_point_cep?: string;
@@ -231,6 +232,7 @@ export interface CreateRouteRequest {
 
 export interface UpdateRouteRequest {
   name?: string;
+  driver_id?: number;
   school_id?: number | null;
   start_point?: string;
   start_point_cep?: string;

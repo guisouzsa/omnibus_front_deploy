@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRoutes } from "@/hooks/useRoutes";
 import { useSchools } from "@/hooks/useSchools";
+import { useDrivers } from "@/hooks/useDrivers";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 import { useAuth } from "@/hooks";
 
@@ -165,10 +166,11 @@ function EditRotaPage() {
 
   const { getRoute, updateRoute, loading } = useRoutes(false);
   const { schools, fetchSchools } = useSchools(false);
+  const { drivers, fetchDrivers } = useDrivers(false);
 
   const [form, setForm] = useState({
     name: "", start_point_cep: "", start_point_reference: "",
-    start_point: "", departure_time: "", end_point: "", school_id: "",
+    start_point: "", departure_time: "", end_point: "", driver_id: "", school_id: "",
   });
   const [submitError,   setSubmitError]   = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -179,6 +181,7 @@ function EditRotaPage() {
     const load = async () => {
       try {
         await fetchSchools({ per_page: 100 });
+        await fetchDrivers({ per_page: 100 });
         const routeResponse = await getRoute(Number(routeId));
         const route = routeResponse.data;
         const startPointStr = typeof route.start_point === 'object' ? route.start_point?.name : route.start_point;
@@ -190,6 +193,7 @@ function EditRotaPage() {
           start_point:           startPointStr || "",
           departure_time:        route.departure_time,
           end_point:             endPointStr || "",
+          driver_id:             route.driver_id ? String(route.driver_id) : "",
           school_id:             route.school_id ? String(route.school_id) : "",
         });
       } catch {
@@ -212,8 +216,13 @@ function EditRotaPage() {
     setSubmitError(null); setSubmitSuccess(false);
     try {
       const selectedSchool = schools.find((school) => school.id === Number(form.school_id));
+      if (!form.driver_id) {
+        setSubmitError("Selecione o motorista da rota.");
+        return;
+      }
       const payload = {
         ...form,
+        driver_id:     Number(form.driver_id),
         school_id:     form.school_id ? Number(form.school_id) : null,
         end_point:     selectedSchool?.address || form.end_point,
         end_point_lat: selectedSchool?.lat || undefined,
@@ -308,6 +317,18 @@ function EditRotaPage() {
                     <label className="label">Horário de Saída</label>
                     <input type="time" name="departure_time" className="input" value={form.departure_time} onChange={handleChange} required />
                   </div>
+                  <div className="field">
+                    <label className="label">Motorista da Rota</label>
+                    <select name="driver_id" className="input" value={form.driver_id} onChange={handleChange} required>
+                      <option value="">Selecione um motorista</option>
+                      {drivers.map((driver) => (
+                        <option key={driver.id} value={String(driver.id)}>{driver.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="row">
                   <div className="field">
                     <label className="label">Parada Final (Escola)</label>
                     <select name="school_id" className="input" value={form.school_id} onChange={handleChange}>

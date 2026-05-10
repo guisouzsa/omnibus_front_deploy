@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRoutes } from "@/hooks/useRoutes";
 import { useAuth } from "@/hooks";
 import { useSchools } from "@/hooks/useSchools";
+import { useDrivers } from "@/hooks/useDrivers";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -167,6 +168,7 @@ export default function CadastroRotaPage() {
   const initial = (user?.name || user?.email || 'A')?.[0]?.toUpperCase();
   const { createRoute, getAddressesByCep, loading } = useRoutes(false);
   const { schools, fetchSchools } = useSchools(false);
+  const { drivers, fetchDrivers } = useDrivers(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -174,6 +176,7 @@ export default function CadastroRotaPage() {
     start_point: "",
     start_point_reference: "",
     departure_time: "",
+    driver_id: "",
     school_id: "",
   });
   const [startOptions, setStartOptions] = useState<Array<{ address: string; lat: number; lng: number }>>([]);
@@ -184,6 +187,7 @@ export default function CadastroRotaPage() {
 
   useEffect(() => {
     fetchSchools({ per_page: 100 });
+    fetchDrivers({ per_page: 100 });
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -224,6 +228,10 @@ export default function CadastroRotaPage() {
     try {
       const selectedStart = selectedStartIndex !== "" ? startOptions[Number(selectedStartIndex)] : null;
       const selectedSchool = schools.find((school) => school.id === Number(form.school_id));
+      if (!form.driver_id) {
+        setSubmitError("Selecione o motorista da rota.");
+        return;
+      }
       if (!selectedSchool) {
         setSubmitError("Selecione a escola de parada final.");
         return;
@@ -231,6 +239,7 @@ export default function CadastroRotaPage() {
 
       const payload = {
         name: form.name,
+        driver_id: Number(form.driver_id),
         school_id: selectedSchool.id,
         start_point_cep: form.start_point_cep,
         start_point: selectedStart?.address || form.start_point,
@@ -247,7 +256,7 @@ export default function CadastroRotaPage() {
 
       await createRoute(payload);
       setSubmitSuccess(true);
-      setForm({ name: "", start_point_cep: "", start_point: "", start_point_reference: "", departure_time: "", school_id: "" });
+      setForm({ name: "", start_point_cep: "", start_point: "", start_point_reference: "", departure_time: "", driver_id: "", school_id: "" });
       setStartOptions([]);
       setSelectedStartIndex("");
       setTimeout(() => router.push("/lista_rotas"), 2000);
@@ -409,6 +418,24 @@ export default function CadastroRotaPage() {
                       required
                     />
                   </div>
+                  <div className="field">
+                    <label className="label">Motorista da Rota</label>
+                    <select
+                      className="input"
+                      name="driver_id"
+                      value={form.driver_id}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Selecione um motorista</option>
+                      {drivers.map((driver) => (
+                        <option key={driver.id} value={String(driver.id)}>{driver.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="row">
                   <div className="field">
                     <label className="label">Parada Final (Escola)</label>
                     <select
