@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRoutes } from "@/hooks/useRoutes";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
+import { useAuth } from "@/hooks";
 
 declare global {
   interface Window { L: any; }
@@ -268,6 +269,8 @@ const css = `
 
 export default function VisualizarRotaPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const initial = (user?.name || user?.email || 'A')?.[0]?.toUpperCase();
   const searchParams = useSearchParams();
   const routeId = searchParams.get("id");
   const { getRoute } = useRoutes(false);
@@ -356,7 +359,7 @@ export default function VisualizarRotaPage() {
 
         // Marcador A (navy)
         const startIcon = L.divIcon({
-          html: `<div style="background:#01233F;color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;box-shadow:0 3px 10px rgba(1,35,63,0.35);border:3px solid #fff;font-family:'DM Sans',sans-serif;">A</div>`,
+          html: `<div style="background:#01233F;color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;box-shadow:0 3px 10px rgba(1,35,63,0.35);border:3px solid #fff;font-family:'DM Sans',sans-serif;">${initial}</div>`,
           iconSize: [36, 36], className: "",
         });
         L.marker([startPoint.lat, startPoint.lng], { icon: startIcon }).addTo(map)
@@ -445,7 +448,7 @@ export default function VisualizarRotaPage() {
           </nav>
           <div className="sidebar-footer">
             <button className="user-row" onClick={() => router.push("/perfil")}>
-              <div className="avatar">A</div>
+              <div className="avatar">{initial}</div>
               <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
             <SidebarLogoutButton />
@@ -467,7 +470,7 @@ export default function VisualizarRotaPage() {
               <button className="icon-btn" onClick={() => router.push("/notificacoes")} title="Notificações">
                 <BellIconFilled /><span className="notif-dot" />
               </button>
-              <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">A</div>
+              <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">{initial}</div>
             </div>
           </header>
 
@@ -511,7 +514,7 @@ export default function VisualizarRotaPage() {
                   <div className="panel-card-title">Percurso</div>
 
                   <div className="detail-row">
-                    <div className="detail-badge badge-a">A</div>
+                    <div className="detail-badge badge-a">{initial}</div>
                     <div className="detail-content">
                       <div className="detail-label">Ponto de Saída</div>
                       <div className="detail-value">{loading ? "Carregando..." : startLabel || "—"}</div>

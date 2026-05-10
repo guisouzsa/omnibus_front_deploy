@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
+import { useAuth } from "@/hooks";
 import { notificationsService } from "@/services";
 import { Notification as NotificationData, NotificationType as NotificationTypeEnum } from "@/types/api";
 
@@ -132,6 +133,8 @@ function formatDate(dateString: string): string {
 
 export default function NotificacoesPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const initial = (user?.name || user?.email || 'A')?.[0]?.toUpperCase();
   const [notifications, setNotifications] = useState<NotificationUI[]>([]);
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [loading, setLoading] = useState(true);
@@ -245,8 +248,8 @@ export default function NotificacoesPage() {
           </button>
         </nav>
         <div className="sidebar-footer">
-          <button className="user-row" onClick={() => router.push("/perfil")}>
-            <div className="avatar-sb">A</div>
+          <button className="user-row" onClick={() => router.push("/perfil")}> 
+            <div className="avatar-sb">{initial}</div>
             <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
           </button>
           <SidebarLogoutButton />

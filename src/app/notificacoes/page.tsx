@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
+import { useAuth } from "@/hooks";
 import { notificationsService } from "@/services";
 import { Notification as NotificationData, NotificationType as NotificationTypeEnum } from "@/types/api";
 
@@ -309,6 +310,8 @@ function formatDate(dateString: string): string {
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function NotificacoesPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const initial = (user?.name || user?.email || 'A')?.[0]?.toUpperCase();
   const [notifications, setNotifications] = useState<NotificationUI[]>([]);
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [loading, setLoading] = useState(true);
@@ -413,8 +416,8 @@ export default function NotificacoesPage() {
             <button className="nav-item" onClick={() => router.push("/lista_escolas")}><SchoolIconFilled /> Escolas</button>
           </nav>
           <div className="sidebar-footer">
-            <button className="user-row" onClick={() => router.push("/perfil")}>
-              <div className="avatar">A</div>
+            <button className="user-row" onClick={() => router.push("/perfil")}> 
+              <div className="avatar">{initial}</div>
               <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
             <SidebarLogoutButton />
@@ -433,7 +436,7 @@ export default function NotificacoesPage() {
                 <BellIconFilled />
                 {unreadCount > 0 && <span className="notif-dot" />}
               </button>
-              <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">A</div>
+              <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">{initial}</div>
             </div>
           </header>
 

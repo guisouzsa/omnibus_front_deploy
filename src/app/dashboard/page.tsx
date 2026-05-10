@@ -361,6 +361,7 @@ function CustomTooltipKm({ active, payload, label }: any) {
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const initial = (user?.name || user?.email || 'A')?.[0]?.toUpperCase();
   const { expenses, fetchExpenses } = useExpenses(false);
   const { getLimitByPeriod } = useSpendingLimits(false);
   const [currentMonthLimit, setCurrentMonthLimit] = useState(0);
@@ -483,8 +484,8 @@ export default function DashboardPage() {
             <button className="nav-item" onClick={() => router.push("/lista_escolas")}><SchoolIconFilled /> Escolas</button>
           </nav>
           <div className="sidebar-footer">
-            <button className="user-row" onClick={() => router.push("/perfil")}>
-              <div className="avatar">A</div>
+            <button className="user-row" onClick={() => router.push("/perfil")}> 
+              <div className="avatar">{initial}</div>
               <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
             <SidebarLogoutButton />
@@ -504,7 +505,7 @@ export default function DashboardPage() {
               <button className="icon-btn" onClick={() => router.push("/notificacoes")} title="Notificações">
                 <BellIconFilled /><span className="notif-dot" />
               </button>
-              <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">A</div>
+              <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">{initial}</div>
             </div>
           </header>
 

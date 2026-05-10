@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSchools } from "@/hooks/useSchools";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
+import { useAuth } from "@/hooks";
 
   function BusSideIcon({ size = 28 }: { size?: number }) {
     return (
@@ -215,6 +216,8 @@ const css = `
 
 export default function ListaEscolasPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const initial = (user?.name || user?.email || 'A')?.[0]?.toUpperCase();
   const { schools, loading, error, deleteSchool } = useSchools();
   const [search, setSearch] = useState("");
 
@@ -272,7 +275,7 @@ export default function ListaEscolasPage() {
           </nav>
           <div className="sidebar-footer">
             <button className="user-row" onClick={() => router.push("/perfil")}>
-              <div className="avatar">A</div>
+              <div className="avatar">{initial}</div>
               <div><div className="user-name">Admin</div><div className="user-role">Gestor</div></div>
             </button>
             <SidebarLogoutButton />
@@ -289,7 +292,7 @@ export default function ListaEscolasPage() {
               <button className="icon-btn" onClick={() => router.push("/notificacoes")} title="Notificações">
                 <BellIconFilled /><span className="notif-dot" />
               </button>
-              <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">A</div>
+              <div className="topbar-avatar" onClick={() => router.push("/perfil")} title="Perfil">{initial}</div>
             </div>
           </header>
 
