@@ -329,7 +329,7 @@ export default function VisualizarRotaPage() {
         setStartLabel(getPointLabel(startPoint, "—"));
         setEndLabel(getPointLabel(endPoint, "—"));
         setDuration(response.suggested_duration_minutes);
-        setDistance(response.map?.distance_km || response.distance);
+        setDistance(response.map?.distance_km || response.data?.distance);
 
         if (!startPoint?.lat || !startPoint?.lng || !endPoint?.lat || !endPoint?.lng) {
           setError("Esta rota ainda não possui coordenadas suficientes para o mapa.");
