@@ -251,7 +251,7 @@ export default function OmnibusCadastro() {
         {/* LEFT PANEL */}
         <div className="left-panel">
           <Image
-            src="/banneromnibus.png"
+            src="/banneromnibus1.png"
             alt="Omnibus"
             fill
             style={{ objectFit: "cover" }}

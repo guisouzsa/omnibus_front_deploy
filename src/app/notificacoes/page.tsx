@@ -339,9 +339,10 @@ export default function NotificacoesPage() {
     }
   };
 
-  const filtered = activeFilter === "all"
+  const filtered = (activeFilter === "all"
     ? notifications
-    : notifications.filter((n) => n.filter_category === activeFilter);
+    : notifications.filter((n) => n.filter_category === activeFilter)
+  ).reverse();
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 

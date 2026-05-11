@@ -320,7 +320,7 @@ export default function OnibusCadastradosPage() {
                   ) : filtered.length === 0 ? (
                     <tr><td colSpan={5} className="feedback">Nenhum ônibus cadastrado.</td></tr>
                   ) : (
-                    filtered.map((v) => (
+                    filtered.reverse().map((v) => (
                       <tr key={v.id}>
                         <td className="td-name">{v.plate}</td>
                         <td className="td-muted">{v.capacity} alunos</td>

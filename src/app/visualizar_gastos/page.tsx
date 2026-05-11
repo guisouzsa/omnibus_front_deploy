@@ -587,7 +587,7 @@ export default function VisualizarGastosPage() {
                   ) : expenses.length === 0 ? (
                     <tr><td colSpan={4} className="feedback">Nenhum gasto encontrado.</td></tr>
                   ) : (
-                    expenses.map((e) => (
+                    expenses.reverse().map((e) => (
                       <tr key={e.id}>
                         <td className="td-name">{e.vehicle_plate}</td>
                         <td className="td-muted">{e.driver?.name ?? `Motorista #${e.driver_id}`}</td>
