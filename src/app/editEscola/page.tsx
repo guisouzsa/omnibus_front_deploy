@@ -186,6 +186,11 @@ function EditEscolaPage() {
       try {
         const schoolResponse = await getSchool(Number(schoolId));
         const school = schoolResponse.data;
+        if (!school) {
+          setSubmitError("Escola não encontrada.");
+          setLoadingData(false);
+          return;
+        }
         setForm({
           name: school.name,
           cep: school.cep || "",
