@@ -280,7 +280,7 @@ export default function CadastroOnibusPage() {
 
       setSuccessMessage("✓ Ônibus cadastrado com sucesso!");
       setForm({ plate: "", capacity: "", driver_id: "", route_id: "" });
-      setTimeout(() => router.push("/lista_onibus"), 1500);
+      setTimeout(() => router.push("/lista_onibus"), 800);
     } catch (err: any) {
       // If backend returned structured validation errors, show them clearly
       const resp = err?.response || err?.response?.data || null;

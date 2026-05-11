@@ -11,6 +11,19 @@ import {
   QueryParams,
 } from '@/types/api';
 
+function sortByNewest<T extends { id: number; created_at?: string }>(items: T[]): T[] {
+  return [...items].sort((a, b) => {
+    const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+
+    if (bTime !== aTime) {
+      return bTime - aTime;
+    }
+
+    return b.id - a.id;
+  });
+}
+
 export function useRoutes(autoFetch = true) {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,7 +46,7 @@ export function useRoutes(autoFetch = true) {
     setError(null);
     try {
       const response = await routesService.getAll(params);
-      setRoutes(response.data || []);
+      setRoutes(sortByNewest(response.data || []));
       setPagination({
         currentPage: response.current_page,
         lastPage: response.last_page,

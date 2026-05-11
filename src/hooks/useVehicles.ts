@@ -2,6 +2,19 @@ import { useState, useEffect, useCallback } from 'react';
 import { vehiclesService } from '@/services/vehicles.service';
 import { Vehicle, CreateVehicleRequest, UpdateVehicleRequest } from '@/types/api';
 
+function sortByNewest<T extends { id: number; created_at?: string }>(items: T[]): T[] {
+  return [...items].sort((a, b) => {
+    const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+
+    if (bTime !== aTime) {
+      return bTime - aTime;
+    }
+
+    return b.id - a.id;
+  });
+}
+
 /**
  * Hook para gerenciar veículos (ônibus)
  */
@@ -18,7 +31,7 @@ export function useVehicles() {
       setLoading(true);
       setError(null);
       const data = await vehiclesService.getAll();
-      setVehicles(data);
+      setVehicles(sortByNewest(data));
     } catch (err: any) {
       setError(err.message || 'Erro ao buscar veículos');
     } finally {

@@ -328,14 +328,15 @@ export default function ListaRotasPage() {
                     <th>Parada inicial</th>
                     <th>Última parada</th>
                     <th>Horário de saída</th>
+                    <th>Motorista</th>
                     <th>Operações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {error ? (
-                    <tr><td colSpan={5} className="feedback error">{error}</td></tr>
+                    <tr><td colSpan={6} className="feedback error">{error}</td></tr>
                   ) : filtered.length === 0 ? (
-                    <tr><td colSpan={5} className="feedback">Nenhuma rota cadastrada.</td></tr>
+                    <tr><td colSpan={6} className="feedback">Nenhuma rota cadastrada.</td></tr>
                   ) : (
                     filtered.reverse().map((r) => (
                       <tr key={r.id}>
@@ -347,6 +348,7 @@ export default function ListaRotasPage() {
                           {typeof r.end_point === 'object' ? r.end_point?.name : r.end_point}
                         </td>
                         <td className="td-muted">{r.departure_time}</td>
+                        <td className="td-muted">{r.driver?.name || <span style={{color: '#f59e0b', fontWeight: '600'}}>Pendente</span>}</td>
                         <td>
                           <div className="td-ops">
                             <button className="btn-map" onClick={() => router.push(`/visualizar_rota?id=${r.id}`)}>

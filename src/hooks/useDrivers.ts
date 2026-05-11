@@ -4,6 +4,19 @@ import { useState, useEffect } from 'react';
 import { driversService } from '@/services';
 import { Driver, CreateDriverRequest, UpdateDriverRequest, QueryParams } from '@/types/api';
 
+function sortByNewest<T extends { id: number; created_at?: string }>(items: T[]): T[] {
+  return [...items].sort((a, b) => {
+    const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+
+    if (bTime !== aTime) {
+      return bTime - aTime;
+    }
+
+    return b.id - a.id;
+  });
+}
+
 export function useDrivers(autoFetch = true) {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(false);
@@ -26,7 +39,7 @@ export function useDrivers(autoFetch = true) {
     setError(null);
     try {
       const response = await driversService.getAll(params);
-      setDrivers(response.data);
+      setDrivers(sortByNewest(response.data || []));
       setPagination({
         currentPage: response.current_page,
         lastPage: response.last_page,

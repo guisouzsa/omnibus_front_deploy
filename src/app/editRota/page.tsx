@@ -94,9 +94,8 @@ const css = `
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-label { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.75); letter-spacing: 1.5px; text-transform: uppercase; font-family: 'DM Sans', sans-serif; }
   .sidebar { width: var(--sidebar-w); background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
-  .sidebar-logo { padding: 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; }
-  .logo-image { width: 188px; max-width: 100%; height: auto; display: block; }
-  .logo-texts { display: none; }
+  .sidebar-logo { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+  .logo-texts { display: flex; flex-direction: column; }
   .logo-text { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
   .logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; font-weight: 400; margin-top: 1px; }
   .sidebar-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 2px; }
@@ -245,7 +244,7 @@ function EditRotaPage() {
       <div className="layout">
         <aside className="sidebar">
           <div className="sidebar-logo">
-            <img src="/banneromnibus.png" alt="Omnibus" className="logo-image" />
+            <BusSideIcon size={28} />
             <div className="logo-texts">
               <div className="logo-text">Omnibus</div>
               <div className="logo-sub">Gestão Escolar</div>
