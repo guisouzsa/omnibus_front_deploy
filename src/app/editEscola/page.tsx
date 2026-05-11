@@ -2,8 +2,9 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useRoutes } from "@/hooks/useRoutes";
 import { useSchools } from "@/hooks/useSchools";
+import { useRoutes } from "@/hooks/useRoutes";
+import { maskCEP, unmaskCEP } from "@/utils/mask";
 import SidebarLogoutButton from "@/components/SidebarLogoutButton";
 import { useAuth } from "@/hooks";
 
@@ -130,6 +131,10 @@ const css = `
   .input::placeholder { color: #b0bac6; font-size: 13px; font-weight: 400; }
   .input:focus { border-color: var(--yellow); background: #fff; box-shadow: 0 0 0 3px rgba(241,187,19,0.12); }
   select.input { padding-right: 30px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2301233F' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; appearance: none; cursor: pointer; }
+  .cep-row { display: grid; grid-template-columns: 1fr 120px; gap: 10px; }
+  .btn-cep { height: 52px; border: none; border-radius: 8px; background: var(--navy); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity 0.15s; }
+  .btn-cep:hover { opacity: 0.85; }
+  .btn-cep:disabled { opacity: 0.4; cursor: not-allowed; }
   .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 500; }
   .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
   .alert-error   { background: #fde8e8; color: #7f1d1d; border: 1px solid #fca5a5; }
@@ -162,69 +167,71 @@ function EditEscolaPage() {
   const { user } = useAuth();
   const initial = (user?.name || user?.email || 'A')?.[0]?.toUpperCase();
   const searchParams = useSearchParams();
-  const routeId = searchParams.get("id");
+  const schoolId = searchParams.get("id");
 
-  const { getRoute, updateRoute, loading } = useRoutes(false);
-  const { schools, fetchSchools } = useSchools(false);
+  const { getSchool, updateSchool, loading } = useSchools(false);
+  const { getAddressesByCep } = useRoutes(false);
 
   const [form, setForm] = useState({
-    name: "", start_point_cep: "", start_point_reference: "",
-    start_point: "", departure_time: "", end_point: "", school_id: "",
+    name: "", cep: "", address: "", reference_point: "",
   });
   const [submitError,   setSubmitError]   = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [loadingData,   setLoadingData]   = useState(true);
+  const [searchingCep,  setSearchingCep]  = useState(false);
 
   useEffect(() => {
-    if (!routeId) { router.push("/lista_rotas"); return; }
+    if (!schoolId) { router.push("/lista_escolas"); return; }
     const load = async () => {
       try {
-        await fetchSchools({ per_page: 100 });
-        const routeResponse = await getRoute(Number(routeId));
-        const route = routeResponse.data;
-        const startPointStr = typeof route.start_point === 'object' ? route.start_point?.name : route.start_point;
-        const endPointStr = typeof route.end_point === 'object' ? route.end_point?.name : route.end_point;
+        const schoolResponse = await getSchool(Number(schoolId));
+        const school = schoolResponse.data;
         setForm({
-          name:                  route.name,
-          start_point_cep:       route.start_point_cep || "",
-          start_point_reference: route.start_point_reference || "",
-          start_point:           startPointStr || "",
-          departure_time:        route.departure_time,
-          end_point:             endPointStr || "",
-          school_id:             route.school_id ? String(route.school_id) : "",
+          name: school.name,
+          cep: school.cep || "",
+          address: school.address || "",
+          reference_point: school.reference_point || "",
         });
       } catch {
-        setSubmitError("Não foi possível carregar a rota.");
+        setSubmitError("Não foi possível carregar a escola.");
       } finally {
         setLoadingData(false);
       }
     };
     load();
-  }, [routeId]);
+  }, [schoolId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    if (e.target.name === "cep") value = maskCEP(value);
+    setForm({ ...form, [e.target.name]: value });
     setSubmitError(null); setSubmitSuccess(false);
+  };
+
+  const handleSearchCep = async () => {
+    setSearchingCep(true);
+    setSubmitError(null);
+    try {
+      const options = await getAddressesByCep(unmaskCEP(form.cep));
+      if (!options.length) { setSubmitError("Não encontramos endereços para esse CEP."); return; }
+      setForm((prev) => ({ ...prev, address: options[0].address }));
+    } catch (err: any) {
+      setSubmitError(err?.message || "Erro ao consultar CEP");
+    } finally {
+      setSearchingCep(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!routeId) return;
+    if (!schoolId) return;
     setSubmitError(null); setSubmitSuccess(false);
     try {
-      const selectedSchool = schools.find((school) => school.id === Number(form.school_id));
-      const payload = {
-        ...form,
-        school_id:     form.school_id ? Number(form.school_id) : null,
-        end_point:     selectedSchool?.address || form.end_point,
-        end_point_lat: selectedSchool?.lat || undefined,
-        end_point_lng: selectedSchool?.lng || undefined,
-      };
-      await updateRoute(Number(routeId), payload);
+      await updateSchool(Number(schoolId), form);
       setSubmitSuccess(true);
-      setTimeout(() => router.push("/lista_rotas"), 2000);
+      setTimeout(() => router.push("/lista_escolas"), 2000);
     } catch (err: any) {
-      setSubmitError(err?.response?.message || err?.message || "Erro ao atualizar rota");
+      setSubmitError(err?.message || "Erro ao atualizar escola");
     }
   };
 
@@ -248,9 +255,9 @@ function EditEscolaPage() {
             <button className="nav-item" onClick={() => router.push("/visualizar_gastos")}><FinanceIconFilled /> Financeiro</button>
             <span className="nav-label">Cadastros</span>
             <button className="nav-item" onClick={() => router.push("/lista_onibus")}><BusFrontIcon /> Ônibus</button>
-            <button className="nav-item active"><RouteIconFilled /> Rotas</button>
+            <button className="nav-item" onClick={() => router.push("/lista_rotas")}><RouteIconFilled /> Rotas</button>
             <button className="nav-item" onClick={() => router.push("/lista_motoristas")}><DriverIconFilled /> Motoristas</button>
-            <button className="nav-item" onClick={() => router.push("/lista_escolas")}><SchoolIconFilled /> Escolas</button>
+            <button className="nav-item active"><SchoolIconFilled /> Escolas</button>
           </nav>
           <div className="sidebar-footer">
             <button className="user-row" onClick={() => router.push("/perfil")}>
@@ -264,8 +271,8 @@ function EditEscolaPage() {
         <div className="content">
           <header className="topbar">
             <div>
-              <div className="topbar-title">Editar Rota</div>
-              <div className="topbar-sub">Atualize os dados da rota</div>
+              <div className="topbar-title">Editar Escola</div>
+              <div className="topbar-sub">Atualize os dados da escola</div>
             </div>
             <div className="topbar-right">
               <button className="icon-btn" onClick={() => router.push("/notificacoes")} title="Notificações">
@@ -276,48 +283,38 @@ function EditEscolaPage() {
           </header>
 
           <div className="body">
-            <h2 className="page-title">Editar Rota</h2>
+            <h2 className="page-title">Editar Escola</h2>
             <div className="card">
-              {submitSuccess && <div className="alert alert-success">✓ Rota atualizada com sucesso! Redirecionando...</div>}
+              {submitSuccess && <div className="alert alert-success">✓ Escola atualizada com sucesso! Redirecionando...</div>}
               {submitError   && <div className="alert alert-error">{submitError}</div>}
 
               <form onSubmit={handleSubmit}>
-                <div className="row">
-                  <div className="field">
-                    <label className="label">Nome da Rota</label>
-                    <input type="text" name="name" className="input" placeholder="Ex: Ingá" value={form.name} onChange={handleChange} required />
-                  </div>
-                  <div className="field">
-                    <label className="label">CEP da Saída</label>
-                    <input type="text" name="start_point_cep" className="input" placeholder="Ex: 58000000" value={form.start_point_cep} onChange={handleChange} />
-                  </div>
+                <div className="field">
+                  <label className="label">Nome da Escola</label>
+                  <input type="text" name="name" className="input" placeholder="Ex: Escola Municipal" value={form.name} onChange={handleChange} required />
                 </div>
 
                 <div className="row">
                   <div className="field">
-                    <label className="label">Ponto de Partida</label>
-                    <input type="text" name="start_point" className="input" placeholder="Ex: Rua Principal, 123" value={form.start_point} onChange={handleChange} required />
+                    <label className="label">CEP</label>
+                    <input type="text" name="cep" className="input" placeholder="Ex: 58000-000" value={form.cep} onChange={handleChange} maxLength={9} />
                   </div>
-                  <div className="field">
-                    <label className="label">Referência da Saída</label>
-                    <input type="text" name="start_point_reference" className="input" placeholder="Ex: Próximo ao mercado X" value={form.start_point_reference} onChange={handleChange} />
+                  <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                    <div style={{ height: "8px" }}></div>
+                    <button type="button" className="btn-cep" onClick={handleSearchCep} disabled={searchingCep || !form.cep}>
+                      {searchingCep ? "Buscando..." : "Buscar"}
+                    </button>
                   </div>
                 </div>
 
-                <div className="row">
-                  <div className="field">
-                    <label className="label">Horário de Saída</label>
-                    <input type="time" name="departure_time" className="input" value={form.departure_time} onChange={handleChange} required />
-                  </div>
-                  <div className="field">
-                    <label className="label">Parada Final (Escola)</label>
-                    <select name="school_id" className="input" value={form.school_id} onChange={handleChange}>
-                      <option value="">Sem escola vinculada</option>
-                      {schools.map((school) => (
-                        <option key={school.id} value={String(school.id)}>{school.name} - {school.address}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="field">
+                  <label className="label">Endereço</label>
+                  <input type="text" name="address" className="input" placeholder="Ex: Rua Principal, 123" value={form.address} onChange={handleChange} required />
+                </div>
+
+                <div className="field">
+                  <label className="label">Ponto de Referência</label>
+                  <input type="text" name="reference_point" className="input" placeholder="Ex: Próximo ao parque" value={form.reference_point} onChange={handleChange} />
                 </div>
 
                 <button type="submit" className="btn" disabled={loading}>
