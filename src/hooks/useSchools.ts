@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { schoolsService } from '@/services/schools.service';
 import {
   School,
@@ -33,13 +33,7 @@ export function useSchools(autoFetch = true) {
     total: 0,
   });
 
-  useEffect(() => {
-    if (autoFetch) {
-      fetchSchools();
-    }
-  }, [autoFetch]);
-
-  const fetchSchools = async (params?: QueryParams) => {
+  const fetchSchools = useCallback(async (params?: QueryParams) => {
     setLoading(true);
     setError(null);
     try {
@@ -57,7 +51,13 @@ export function useSchools(autoFetch = true) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (autoFetch) {
+      fetchSchools();
+    }
+  }, [autoFetch, fetchSchools]);
 
   const getSchool = async (id: number) => {
     setLoading(true);

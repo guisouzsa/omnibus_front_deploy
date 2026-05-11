@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { driversService } from '@/services';
 import { Driver, CreateDriverRequest, UpdateDriverRequest, QueryParams } from '@/types/api';
 
@@ -28,13 +28,7 @@ export function useDrivers(autoFetch = true) {
     total: 0,
   });
 
-  useEffect(() => {
-    if (autoFetch) {
-      fetchDrivers();
-    }
-  }, [autoFetch]);
-
-  const fetchDrivers = async (params?: QueryParams) => {
+  const fetchDrivers = useCallback(async (params?: QueryParams) => {
     setLoading(true);
     setError(null);
     try {
@@ -51,7 +45,13 @@ export function useDrivers(autoFetch = true) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (autoFetch) {
+      fetchDrivers();
+    }
+  }, [autoFetch, fetchDrivers]);
 
   const getDriver = async (id: number) => {
     setLoading(true);

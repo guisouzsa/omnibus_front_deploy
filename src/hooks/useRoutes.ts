@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { routesService } from '@/services/routes.service';
 import {
   Route,
@@ -35,13 +35,7 @@ export function useRoutes(autoFetch = true) {
     total: 0,
   });
 
-  useEffect(() => {
-    if (autoFetch) {
-      fetchRoutes();
-    }
-  }, [autoFetch]);
-
-  const fetchRoutes = async (params?: QueryParams) => {
+  const fetchRoutes = useCallback(async (params?: QueryParams) => {
     setLoading(true);
     setError(null);
     try {
@@ -59,7 +53,13 @@ export function useRoutes(autoFetch = true) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (autoFetch) {
+      fetchRoutes();
+    }
+  }, [autoFetch, fetchRoutes]);
 
   const getRoute = async (id: number) => {
     setLoading(true);

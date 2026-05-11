@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { expensesService } from '@/services';
 import { Expense, CreateExpenseRequest, UpdateExpenseRequest, QueryParams } from '@/types/api';
 
@@ -48,13 +48,7 @@ export function useExpenses(autoFetch = true) {
     total: 0,
   });
 
-  useEffect(() => {
-    if (autoFetch) {
-      fetchExpenses();
-    }
-  }, [autoFetch]);
-
-  const fetchExpenses = async (params?: QueryParams) => {
+  const fetchExpenses = useCallback(async (params?: QueryParams) => {
     setLoading(true);
     setError(null);
     try {
@@ -68,9 +62,9 @@ export function useExpenses(autoFetch = true) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchMyExpenses = async (params?: QueryParams) => {
+  const fetchMyExpenses = useCallback(async (params?: QueryParams) => {
     setLoading(true);
     setError(null);
     try {
@@ -84,7 +78,13 @@ export function useExpenses(autoFetch = true) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (autoFetch) {
+      fetchExpenses();
+    }
+  }, [autoFetch, fetchExpenses]);
 
   const getExpense = async (id: number) => {
     setLoading(true);
